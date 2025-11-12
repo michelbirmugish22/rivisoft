@@ -1,0 +1,213 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">SALLE {{ salle.designation }} - <i class="nav-icon fas fa-cash-register"></i> {{ titre }} </h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-10">
+            <div class="card">
+              <div class="card-body">
+                <form id="form_paiement">
+                  {% csrf_token %}
+                  <div class="col-sm-12">
+                    <!-- radio -->
+                    <div class="form-group clearfix">
+                      
+                      {% for op in operateurs %}
+                        <div class="icheck-primary d-inline">
+                          <input type="radio" id="op-{{ op.id }}" value="{{ op.id }}" name="mode">
+                          <label for="op-{{ op.id }}"> {{ op.designation }}
+                          </label>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="card-body row">
+                    <div class="form-group col-3">
+                      <label for="montant">Date début</label>
+                      <input type="date" class="form-control" id="date">
+                    </div>
+                    <div class="form-group col-3">
+                      <label for="montant">Date fin</label>
+                      <input type="date" class="form-control" id="date">
+                    </div>
+                    <div class="form-group col-3">
+                      <label for="montant">Heure début</label>
+                      <input type="time" class="form-control" id="date">
+                    </div>
+                    <div class="form-group col-3">
+                      <label for="montant">Heure fin</label>
+                      <input type="time" class="form-control" id="date">
+                    </div>
+                    <div class="form-group col-3">
+                      <label for="montant">Prix Unitaire</label>
+                      <input type="number" step="0.01" class="form-control" id="prix" placeholder="0.0">
+                    </div>
+                    <div class="form-group col-3">
+                      <label for="montant">Avance (=Confirmation)</label>
+                      <input type="number" step="0.01" class="form-control" id="avance" placeholder="0.0" autocomplete="off">
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="montant">Etat de la réservation</label> <br>
+                      <div class="icheck-primary d-inline">
+                        <input type="radio" id="Aboutie" value="2" name="etat_rsv" checked>
+                        <label for="Aboutie">Aboutie
+                        </label>
+                      </div>
+                      <div class="icheck-primary d-inline">
+                        <input type="radio" id="Confirmee" value="0" name="etat_rsv">
+                        <label for="Confirmee"> Confirmée
+                        </label>
+                      </div>
+                      <div class="icheck-danger d-inline">
+                        <input type="radio" id="Annulee" value="3" name="etat_rsv">
+                        <label for="Annulee"> Annulée
+                        </label>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group col-3">
+                      <label for="montant">Organisation</label>
+                      <select name="" id="" class="form-control">
+                        {% for e in entreprises %}
+                          <option value="{{ e.id }}">{{ e.nom }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col-3">
+                      <label for="montant">Client en chambre</label>
+                      <select name="" id="" class="form-control">
+                        {% for o in occupations %}
+                          <option value="{{ o.id }}">{{ o.client.nom }} {{ o.client.postnom }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="exampleInputPassword1">Remarque</label>
+                        <textarea  class="form-control" name="libelle" id="libelle"></textarea>
+                    </div>
+                  </div>
+                  <!-- /.card-body -->
+  
+                  <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">SAUVEGARDER LE PAIEMENT</button>
+                    
+                  </div> 
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="card col-md-2">
+            <div class="row">
+              <div class="btn btn-primary retour_statut_salles">Retour</div>
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+
+{% include 'riviera/formulaires/modal.html' %}
+
+<script>
+  $("#form_paiement2").submit((e)=>{
+    e.preventDefault();
+  })
+</script>
+<script>
+  $(document).ready(function(){
+    $("#form_paiement").submit(function(e){
+        e.preventDefault();
+        if($.trim($("#montant").val()).length==0 || $.trim($("#libelle").val()).length==0 || $("[name=mode]:checked").val() == undefined ){
+          toastr.warning("Veuillez compléter tous les champs nécessaires !")
+        }
+        else if(parseFloat($("#reste_dette").val()) < parseFloat($("#montant").val()) && $("[name=concerne]:checked").val() === "A" ){
+          toastr.error("Le montant à payer ne doit pas aller au-dela de la dette du client pour l'Accommodation.");
+        }
+        else if(parseFloat($("#dette_extras").val()) < parseFloat($("#montant").val()) && $("[name=concerne]:checked").val() === "E" ){
+          toastr.error("Le montant à payer ne doit pas aller au-dela de la dette du client sur les Extras.");
+        }
+        else{
+          var form = new FormData()
+          form.append('mode',parseInt($("[name=mode]:checked").val()));
+          form.append('concerne',$("[name=concerne]:checked").val());
+          form.append('montant',$("#montant").val());
+          form.append('libelle',$("#libelle").val());
+          form.append('id_ci',{{ checkin.id }});
+          form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+          $.ajax({
+            type:'POST',
+            url:"{% url 'deposit_chambre' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(data){
+              toastr.info(data.msg);
+              $("#txt_reste").text(parseFloat($("#reste_dette").val())- parseFloat($("#montant").val()));
+              $("#montant").val("");$("#libelle").val("");
+              var id_recu = data.id_recu;
+              var url = "{% url 'recu_de_payement' num=0 %}".replace('0', id_recu);
+              $(".card-footer").append(`<a target="_blank" href="${url}" type="button" class="btn btn-primary ml-4" id="btn_print_receipt">Imprimer réçu n° `+id_recu+`</a>`);
+            },
+            error:function(err){
+              toastr.error("Une erreur s'est produite !");
+            }
+          });
+        }
+    })
+  })
+</script>
+
+<script>
+  $("#Confirmee").attr('checked',false)
+  $("#Confirmee").attr('disabled',true)
+  $("#avance").change(function(e){
+    avance = parseFloat($("#avance").val())
+    if(avance != null && avance > 0)
+    {
+      $("#Confirmee").attr('disabled',false)
+      $("#Confirmee").attr('checked',true)
+      $("#Aboutie").attr('disabled',true)
+      $("#Annulee").attr('disabled',true)
+    }else{
+      $("#Confirmee").attr('checked',false)
+      $("#Confirmee").attr('disabled',true)
+      $("#Aboutie").attr('disabled',false)
+      $("#Aboutie").attr('checked',true)
+      $("#Annulee").attr('disabled',false)
+    }
+  })
+  
+</script>
+
+<script>
+  $(".retour_statut_salles").click(function(){$.ajax({url:"{% url 'statut_salles' %}",type:'GET',success:function(response){$("#contenu-page").html(response);$(".nav-link").removeClass("active");$(".statut_salles").addClass("active")},})})
+</script>

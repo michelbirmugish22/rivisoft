@@ -1,0 +1,277 @@
+
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header">
+                <ul class="nav nav-tabs" id="custom-content-above-tab" role="tablist">
+                  <li class="nav-item">
+                    <a class="nav-link btn-primary active" id="custom-content-above-home-tab" data-toggle="pill" href="#custom-content-above-home" role="tab" aria-controls="custom-content-above-home" aria-selected="true">Autres SORIES</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link btn-primary" id="custom-content-above-profile-tab" data-toggle="pill" href="#custom-content-above-profile" role="tab" aria-controls="custom-content-above-profile" aria-selected="false">Autres ENTREES</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link btn-primary" id="custom-content-above-messages-tab" data-toggle="pill" href="#custom-content-above-messages" role="tab" aria-controls="custom-content-above-messages" aria-selected="false">SOLDES</a>
+                  </li>
+                </ul>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <div class="tab-content" id="custom-content-above-tabContent">
+                  <div class="tab-pane fade show active" id="custom-content-above-home" role="tabpanel" aria-labelledby="custom-content-above-home-tab">
+                    <h3> - SORTIE DES FONDS -  <span id="monDiv" style="width:5px; color: red; height:1px; background-color:red;">.</span></h3>
+                    <form method="post" id="form-1">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="form-group col-md-7">
+                                <label for="libelle">Déstination ?</label>
+                                <input type="text" class="form-control" id="libelle" autocomplete="off" placeholder=".ex : Paiement évacuation des déchets">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="operateur">Opérateur</label>
+                                <select class="form-control" id="operateur">
+                                    {% for oper in operateurs %}
+                                        <option value="{{ oper.id }}">{{ oper.designation }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label for="montant">Montant</label>
+                                <input type="number" class="form-control" id="montant" autocomplete="off">
+                            </div>
+                            <button type="submit" class="btn btn-outline-danger btn-lg">Valider sortie caisse <i class="fa fa-check-circle"></i> </button>
+                        </div>
+                    </form>
+                  </div>
+                  <div class="tab-pane fade" id="custom-content-above-profile" role="tabpanel" aria-labelledby="custom-content-above-profile-tab">
+                    <h3> - ENTREE DES FONDS -  <span id="monDiv" style="width:5px; color: green; height:1px; background-color:green;">.</span></h3>
+                    <form method="post" id="form-3">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="form-group col-md-7">
+                                <label for="libelle2">Provenance ?</label>
+                                <input type="text" class="form-control" id="libelle2" autocomplete="off" placeholder=".ex : Paiement évacuation des déchets">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="operateur2">Opérateur</label>
+                                <select class="form-control" id="operateur2">
+                                    {% for oper in operateurs %}
+                                        <option value="{{ oper.id }}">{{ oper.designation }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label for="montant2">Montant</label>
+                                <input type="number" class="form-control" id="montant2" autocomplete="off">
+                            </div>
+                            <button type="submit" class="btn btn-outline-success btn-lg">Valider entrée caisse <i class="fa fa-check-circle"></i> </button>
+                        </div>
+                    </form>
+                  </div>
+                  <div class="tab-pane fade" id="custom-content-above-messages" role="tabpanel" aria-labelledby="custom-content-above-messages-tab">
+                    <h5>BALANCE DES COMPTES</h5>
+                    <table class="table table-bordered">
+                        <tr><th>Compte</th><th>Valeur</th></tr>
+                        
+                        {% for somme_op in somme_operateurs %}
+                            <tr><td>{{somme_op.operateur__designation|upper }}</td><td>{{ somme_op.mvt_total }}</td></tr>
+                        {% endfor %}
+                            
+                    </table>
+                  </div>
+                </div>
+                <!-- /.row -->
+              </div>
+              <!-- ./card-body -->
+              <div class="card-footer">
+                <form action="{% url 'journal_caisse' %}" method="post" id="form-4">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <label for="date1">Date debut</label>
+                            <input type="date" class="form-control" name="date1" id="date1" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="date2">Date fin</label>
+                            <input type="date" class="form-control" name="date2" id="date2" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="operateur2">Opérateur</label>
+                            <select class="form-control" name="operateur2" id="operateur2">
+                                <option value="all">(TOUTES)</option>
+                                {% for oper in operateurs %}
+                                    <option value="{{ oper.id }}">{{ oper.designation }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label class="text-black-50"> ....... </label>
+                            <button type="submit" class="btn btn-outline-success">Chercher <i class="fa fa-eye"></i> </button>
+                        </div>
+                    </div>
+                </form>            
+              </div>
+              <!-- /.card-footer -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-4">
+            <div class="info-box mb-3">
+              <div class="info-box-content">
+                <form method="post" id="form-2">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="form-group col-12">
+                            <label for="designation">Désignation</label>
+                            <input type="text" class="form-control" id="designation" autocomplete="off" placeholder=".ex : Airtel Money">
+                        </div>
+                        <div class="form-group">
+                            <label for="p_caisse">Est-ce désigné comme petite caisse ?</label>
+                            <input type="radio" name="p_caisse" value="1" id="p_caisse1"> OUI
+                            <input type="radio" name="p_caisse" value="0" checked id="p_caisse2"> NON
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" class="btn btn-outline-success" value="Sauvegarder">
+                        </div>
+                    </div>
+                </form>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  {% include 'riviera/formulaires/modal.html' %}
+  <script>
+    $(document).ready(function(){
+        setInterval(function(){
+            $('#monDiv').fadeToggle();
+        }, 1000);
+    });
+</script>
+<script>
+    $("#form-1").submit((e)=>{
+        e.preventDefault()
+        form = new FormData();
+        form.append('libelle',$("#libelle").val());
+        form.append('operateur',$("#operateur").val());
+        form.append('montant',-parseFloat($("#montant").val()));
+        form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type:'POST',
+            url:"{% url 'caisse' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                toastr.info("Opération effectuée");
+            },
+            error:function(err){
+                toastr.error("Operation Echouée");
+            }
+        })
+
+    })
+  </script>
+  <script>
+    $("#form-3").submit((e)=>{
+        e.preventDefault()
+        form = new FormData();
+        form.append('libelle',$("#libelle2").val());
+        form.append('operateur',$("#operateur2").val());
+        form.append('montant',parseFloat($("#montant2").val()));
+        form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type:'POST',
+            url:"{% url 'caisse' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                toastr.info("Opération d'entrée effectuée");
+            },
+            error:function(err){
+                toastr.error("Operation d'entrée Echouée");
+            }
+        })
+
+    })
+  </script>
+  {% comment %} <script>
+    $("#form-4").submit((e)=>{
+        e.preventDefault()
+        form = new FormData();
+        form.append('date1',$("#date1").val());
+        form.append('date2',$("#date2").val());
+        form.append('operateur3',$("#operateur3").val());
+        form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type:'POST',
+            url:"{% url 'journal_caisse' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                toastr.info("Opération d'entrée effectuée");
+            },
+            error:function(err){
+                toastr.error("Operation d'entrée Echouée");
+            }
+        })
+
+    })
+  </script> {% endcomment %}
+  <script>
+    $("#form-2").submit((e)=>{
+        e.preventDefault()
+        form = new FormData();
+        form.append('designation',$("#designation").val());
+        form.append('p_caisse',$("#p_caisse").val());
+        form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type:'POST',
+            url:"{% url 'post_operation_caisse' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                toastr.info("Opération effectuée");
+            },
+            error:function(err){
+                toastr.error("Operation Echouée");
+            }
+        })
+
+    })
+  </script>

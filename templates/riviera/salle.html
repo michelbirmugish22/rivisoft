@@ -1,0 +1,149 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-6">
+            <form action="{% url 'save_bloc' %}" method="post" id="form-salle">
+              {% csrf_token %}
+                <div class="card card-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">SALLES</h3>
+                  </div>
+                  <div class="card-body row">
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Désignation <code> Catégorie</code></label>
+                      <input type="text" class="form-control" id="designation_s">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Numéro <code> de la boutique</code></label>
+                      <input type="number"  min="0"  class="form-control" id="numero_s">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Prix  <code> par occupation</code></label>
+                      <input type="number" min="1"  class="form-control" id="prixoccup">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Capacité  <code> d'accueil</code></label>
+                      <input type="number" min="1"  class="form-control" id="capacite">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Image  <code> de la boutique</code></label>
+                      <input type="file" class="form-control file-input" id="image_s">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="bloc">Bloc <code> de la la boutique</code></label>
+                      <select name="" id="bloc_s" class="form-control form-control-border">
+                          <option selected disabled>sélectionnez un bloc</option>
+                          {% for bloc in blocs %}
+                            <option value="{{bloc.id}}">{{bloc.designation}}</option>
+                          {% endfor %}                                  
+                      </select> 
+                    </div>
+                    <div class="form-group col-md-6">
+                      <button type="submit" class="btn btn-primary col-10" id="ajouter">Ajout</button>
+                    </div>
+                    
+                    <div class="form-group col-md-12">
+                        <select name="" id="select-salle" class="form-control form-control-border">
+                            <option selected disabled>sélectionnez une salle</option>
+                            {% for salle in salles %}
+                              <option value="{{salle.id}}">{{salle.designation}}</option>
+                            {% endfor %}                                  
+                        </select> 
+                        <button type="button" class="btn btn-outline-danger mt-2" id="btn-salle-supprimer">Supprimer</button>
+                        <button type="button" class="btn btn-outline-primary mt-2" id="btn-salle-modifier">Modifier</button>
+                    </div>
+                  </div>
+                </div>
+            </form>
+          </div>
+          <!-- /.col -->
+          <div class="col-md-6">
+            <form action="{% url 'save_bloc' %}" method="post" id="form-boutique" enctype="multipart/form-data">
+              {% csrf_token %}
+                <div class="card card-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">BOUTIQUE</h3>
+                  </div>
+                  <div class="card-body row">
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Désignation <code> Catégorie</code></label>
+                      <input type="text" class="form-control" id="designation" maxlength="50">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Numéro <code> de la boutique</code></label>
+                      <input type="number"  min="0"  class="form-control" id="numero">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Prix  <code> mensuel</code></label>
+                      <input type="number" min="1" class="form-control" id="prixmensuel">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Image  <code> de la boutique</code></label>
+                      <input type="file" class="form-control file-input" id="image">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="bloc">Bloc <code> de la la boutique</code></label>
+                      <select name="" id="blocb" class="form-control form-control-border">
+                          <option selected disabled>sélectionnez un bloc</option>
+                          {% for bloc in blocs %}
+                            <option value="{{bloc.id}}">{{bloc.designation}}</option>
+                          {% endfor %}                                  
+                      </select> 
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="ajouter" class="mt-5"></label>
+                      <button type="submit" class="btn btn-primary col-10" id="ajouter">Ajout</button>
+                    </div>
+                    
+                    <div class="form-group col-md-12 mt-3">
+                      <hr class="bg-secondary">
+                        <select name="" id="select-bout" class="form-control form-control-border">
+                            <option selected disabled>sélectionnez une boutique</option>
+                            {% for bout in boutiques %}
+                              <option value="{{bout.id}}">{{bout.designation}}#{{bout.numero}}</option>
+                            {% endfor %}                                  
+                        </select> 
+                        <button type="button" class="btn btn-outline-danger mt-2" id="btn-bout-supprimer">Supprimer</button>
+                        <button type="button" class="btn btn-outline-primary mt-2" id="btn-bout-modifier">Modifier</button>
+                    </div>
+                  </div>
+                </div>
+            </form>
+          </div>
+          <!-- Fin col 6--> 
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+{% include 'riviera/formulaires/modal.html' %}
+{% include 'riviera/bases/CrudAjax/salle.html' %}

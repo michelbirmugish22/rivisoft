@@ -1,0 +1,360 @@
+{%load static%}
+<!-- Sidebar Menu -->
+<nav class="mt-2">
+    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+      <!-- Add icons to the links using the .nav-icon class
+           with font-awesome or any other icon font library -->
+      <li class="nav-item">
+        <a href="{% url 'home2' %}" class="nav-link">
+          <i class="nav-icon fas fa-tachometer-alt"></i>
+          <p>
+            Tableau de bord
+          </p>
+        </a>
+      </li>
+      {% if user.affectation == 'GER' or user.affectation == 'ADM' or user.affectation == 'RHM' or user.is_staff == 1  %}
+      <li class="nav-item">
+        <a target="_top" href="{% url 'signin' %}" class="nav-link">
+          <i class="nav-icon fas fa-people-arrows"></i>
+            <p>
+              Gestion des Utilisateurs
+            </p>
+        </a>
+      </li>
+      {% endif %}
+      {% if user.affectation == 'REC' or user.affectation == 'ADM' or user.is_staff == 1 %}
+      <li class="nav-item REC">
+        <a href="#" class="nav-link gest_clients">
+          <i class="nav-icon fas fa-users"></i>
+            <p>
+              Gestion des Clients
+            </p>
+        </a>
+      </li>
+      <li class="nav-item REC ">
+        <a href="#" class="nav-link">
+          <i class="nav-icon fas fa-hotel"></i>
+          <p>
+            RECEPTION
+            <i class="fas fa-angle-left right"></i>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+          <li class="nav-item">
+            <a href="#" class="nav-link checkin_page">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Check-in</p>
+            </a>
+          </li>
+          <li class="nav-item REC ">
+            <a href="#" class="nav-link night_audit">
+              <i class="nav-icon fas fa-times"></i>
+                <p>
+                  Clôturer Journée
+                </p>
+              </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'reservation' %}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Book</p>
+            </a>
+          </li>
+          {% comment %} <li class="nav-item">
+            <a href="#" class="nav-link bloc">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Check-out</p>
+            </a>
+          </li> 
+          <li class="nav-item">
+            <a href="#" class="nav-link bloc">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Dépôt</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link bloc">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Dépôt Bqt</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link bloc">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Autre entrées</p>
+            </a>
+          </li>{% endcomment %}
+          <li class="nav-item">
+            <a href="{% url 'rapports_reception' %}" class="nav-link bloc">
+              <i class="far fa-circle nav-icon"></i>
+              <p>RAPPORTS</p>
+            </a>
+          </li>
+        </ul>
+      </li>
+      {% endif %}
+      <li class="nav-item MAG">
+        <a href="#" class="nav-link">
+          <i class="nav-icon fas fa-cubes"></i>
+          <p>
+            Magasin et Stock
+            <i class="fas fa-angle-left right"></i>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+          {% if user.affectation == 'MAG' or user.affectation == 'ADM' or user.is_staff == 1  %}
+          <li class="nav-item">
+            <a href="#" class="nav-link demande_achat">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Demande d'Approv.</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link entree_stock">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Entrée en stock</p>
+            </a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a href="#" class="nav-link demande_stock">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Commander en stock</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link sortie_stock">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Sortir du stock</p>
+            </a>
+          </li>
+          {% if user.affectation == 'MAG' or user.affectation == 'ADM' or user.affectation == 'GER' or user.is_staff == 1  %}
+          <li class="nav-item">
+            <a href="#" class="nav-link rapports_stock">
+              <i class="far fa-circle nav-icon"></i>
+              <p>RAPPORTS</p>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </li>
+      <li class="nav-item RHM">
+        <a href="#" class="nav-link">
+          <i class="nav-icon fas fa-h-square"></i>
+          <p>
+            Ressources Hum
+            <i class="fas fa-angle-left right"></i>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+          {% if user.affectation == 'RHM' or user.affectation == 'ADM' or user.affectation == 'GER' or user.is_staff == 1  %}
+          <li class="nav-item">
+            <a href="#" class="nav-link employes">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Employes</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link registre_employes">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Registre employés</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link bases_salariales">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Bases Salariales</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link octroi_prets">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Octroi des prêts</p>
+            </a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a href="{% url 'informations' %}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Informations</p>
+            </a>
+          </li>
+          {% comment %} <li class="nav-item">
+            <a href="#" class="nav-link sortie_stock">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Bulletins de paie</p>
+            </a>
+          </li> {% endcomment %}
+          {% if user.affectation == 'HRM' or user.affectation == 'ADM' or user.affectation == 'GER' or user.is_staff == 1  %}
+          <li class="nav-item">
+            <a href="{% url 'rapports_ress_hum' %}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>RAPPORTS</p>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </li>
+      {% if user.affectation == 'PDV' or user.affectation == 'ADM' or user.is_staff == 1  %}
+      <li class="nav-item PDV">
+        <a href="#" class="nav-link fact">
+          <i class="nav-icon fas fa-calculator"></i>
+            <p>
+              Facturation
+            </p>
+        </a>
+      </li>
+      {% endif %}
+      {% if user.affectation == 'FIN' or user.affectation == 'ADM' or user.is_staff == 1  %}
+      <li class="nav-item FIN">
+        <a href="#" class="nav-link caisse">
+          <i class="nav-icon fas fa-dollar-sign"></i>
+            <p>
+              Caisse centrale
+            </p>
+        </a>
+      </li>
+      <li class="nav-item FIN">
+        <a href="{% url 'suivie_creances' %}" class="nav-link">
+          <i class="far fa-circle nav-icon"></i>
+          <p>Suivi des créances</p>
+        </a>
+      </li>
+      {% endif %}
+      <li class="nav-item REC">
+        <a href="#" class="nav-link statut_salles">
+          <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>
+              Statut des salles
+            </p>
+        </a>
+      </li>
+      <li class="nav-item REC">
+        <a href="#" class="nav-link statut_cha">
+          <i class="nav-icon fas fa-broom"></i>
+            <p>
+              Statut des chambres
+            </p>
+        </a>
+      </li>
+      <li class="nav-item IAT">
+        <a href="{% url 'analyseia' %}" class="nav-link analyseia">
+          <i class="nav-icon fas fa-chart-bar"></i>
+            <p>
+              Analyses avec l'IA
+            </p>
+        </a>
+      </li>
+      {% if user.affectation != 'PDV' and user.affectation != 'HKP' and user.affectation != 'GAR' and user.affectation != 'CUI' or user.is_staff == 1  %}
+      <li class="nav-header">CONFIGURATIONS</li>
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+          <i class="nav-icon fas fa-cogs"></i>
+          <p>
+            Paramètres
+            <i class="fas fa-angle-left right"></i>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+          {% if user.affectation == 'GER' or user.affectation == 'ADM' or user.is_staff == 1  %}
+          <li class="nav-item PDV">
+            <a href="#" class="nav-link menumaster">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Menu</p>
+            </a>
+          </li>
+          <li class="nav-item REC">
+            <a href="#" class="nav-link bloc">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Blocs</p>
+            </a>
+          </li>
+          <li class="nav-item REC">
+            <a href="#" class="nav-link chambre">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Chambres</p>
+            </a>
+          </li>
+          {% endif %}
+          {% if user.affectation == 'FIN' or user.affectation == 'GER' or user.affectation == 'ADM' or user.is_staff == 1  %}
+          <li class="nav-item REC">
+            <a href="#" class="nav-link salle">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Boutiques & Salles</p>
+            </a>
+          </li>
+          <li class="nav-item PDV">
+            <a href="#" class="nav-link pdv">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Points de vente</p>
+            </a>
+          </li>
+          <li class="nav-item FIN">
+            <a href="#" class="nav-link entreprise">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Entreprises</p>
+            </a>
+          </li>
+          <li class="nav-item FIN">
+            <a href="#" class="nav-link arevenu">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Autres revenue</p>
+            </a>
+          </li>
+          {% endif %}
+          {% if user.affectation == 'MAG' or user.affectation == 'ADM' or user.is_staff == 1  %}
+          <li class="nav-item MAG">
+            <a href="#" class="nav-link article">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Articles stock</p>
+            </a>
+          </li>
+          <li class="nav-item MAG">
+            <a href="#" class="nav-link stock">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Stocks</p>
+            </a>
+          </li>
+          <li class="nav-item MAG">
+            <a href="#" class="nav-link fournisseur">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Fournisseurs</p>
+            </a>
+          </li>
+          {% endif %}
+          {% if user.affectation == 'RHM' or user.affectation == 'ADM' or user.affectation == 'GER' or user.is_staff == 1  %}
+          <li class="nav-item RHM">
+            <a href="#" class="nav-link departement">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Service & Départ. </p>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  <!-- /.sidebar-menu -->
+
+
+<script>
+  $(document).ready((e)=>{
+    $.ajax({
+      type:'get',
+      url:"{% url 'get_avalable_modules' %}",
+      success:function(res){
+        //console.log(res)
+        $.each(res.modules.obj, function(key, value){
+          if(value['is_avalable'] == false){
+            console.log(value['affectation'])
+            $("."+value['affectation']).css('display','none')
+          }
+        })
+        $("#app_name").text(res.app_name)
+      }
+    })
+
+    
+  })
+</script>

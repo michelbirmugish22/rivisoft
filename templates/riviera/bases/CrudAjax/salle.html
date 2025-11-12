@@ -1,0 +1,264 @@
+<script>
+// Enregistrer boutique
+  $("#form-boutique").submit((e)=>{
+    e.preventDefault();    
+    if($("#designation").val() !==null && $("#numero").val() !==null && $("#prixmensuel").val() !==null && $("#blocb").val() !==null){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'save_bout' %}",
+      data: {
+        designation: $("#designation").val(),
+        numero: $("#numero").val(),
+        prixmensuel: $("#prixmensuel").val(),
+        image: $("#image").val(),
+        bloc: $("#blocb").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function(data){
+        parametre_suc('une boutiquette','bout',data.msg, data.boutiques.obj);
+      },
+      error: function(err) {
+        console.log(err);
+        toastr.error(err.statusText)
+      }
+    });
+    }else{
+        toastr.error("Quelques champs obligatoires sont vides")
+    }
+  })
+
+//Selection boutique
+$("#select-bout").change(function(){
+  $.ajax({
+    method:'get',
+    url:"{% url 'edit_bout' %}",
+    data:{
+      'id':$("#select-bout").val(),
+    },
+    success:(function(data){
+      $("#numero").val(data.bout.numero);
+      $("#designation").val(data.bout.designation);
+      $("#prixmensuel").val(data.bout.prixmensuel);
+      $("#image").val(data.bout.image);
+      $("#blocb").val(data.bout.bloc);
+    })
+  })
+})
+
+  //Modifier Catégorie
+  $("#btn-bout-modifier").click((e)=>{   
+    if($("#designation").val() !==null && $("#numero").val() !==null && $("#prixmensuel").val() !==null && $("#blocb").val() !==null){
+      $.ajax({
+        type: 'POST',
+        url: "{% url 'edit_bout' %}",
+        data: {
+          id: $("#select-bout").val(),
+          designation: $("#designation").val(),
+          numero: $("#numero").val(),
+          prixmensuel: $("#prixmensuel").val(),
+          image: $("#image").val(),
+          bloc: $("#blocb").val(),
+          csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+        },
+        success: function(data){
+          parametre_suc('une boutiquette','bout',data.msg, data.boutiques.obj);
+        },
+        error: function(err) {
+          console.log(err);
+          toastr.error(err.statusText)
+        }
+      });
+      }else{
+          toastr.error("Quelques champs obligatoires sont vides")
+      }
+    })
+
+  //Supprimer boutique
+  $("#btn-bout-supprimer").click(function(){
+    if($("#select-bout").val()=== null){
+      toastr.error("Vous devez d'abord sélectionner un client.")
+    }else{
+      $("#modal-default").modal('show')
+      $(".modal-title").html("Suppression Catégorie")
+      $(".modal-body").html("Êtes-vous sûr de vouloir supprimer la boutique "+$("#designation").val()+" ? Toutes les opérations effectuées sur celle-ci disparaîtrons. <br><br>Voulez-vous continuer ?")
+    }
+  });
+  $("#modal-continuer").click(function(){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'delete_bout' %}",
+      data: {
+        id: $("#select-bout").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success:function(data){
+        $("#modal-default").modal('hide');
+        parametre_suc('une boutique','bout', data.msg, data.boutiques.obj)
+      },
+      error:function(err){
+        toastr.danger("Erreur survenu :"+ err)
+        console.log(err.statusText)
+      }
+    })
+  })
+
+
+
+
+
+
+
+//================================================== SALLES =================================
+// Enregistrer salle
+$("#form-salle").submit((e)=>{
+  e.preventDefault();    
+  if($("#designation_s").val() !==null && $("#numero_s").val() !==null && $("#prixoccup").val() !==null && $("#capacite").val() !==null && $("#bloc").val() !==null){
+  $.ajax({
+    type: 'POST',
+    url: "{% url 'save_salle' %}",
+    data: {
+      designation: $("#designation_s").val(),
+      numero: $("#numero_s").val(),
+      capacite: $("#capacite").val(),
+      prixoccup: $("#prixoccup").val(),
+      image: $("#image_s").val(),
+      bloc: $("#bloc_s").val(),
+      csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+    },
+    success: function(data){
+      parametre_suc('une salle','salle',data.msg, data.salles.obj);
+    },
+    error: function(err) {
+      console.log(err);
+      toastr.error(err.statusText)
+    }
+  });
+  }else{
+      toastr.error("Quelques champs obligatoires sont vides")
+  }
+})
+
+//Selection boutique
+$("#select-salle").change(function(){
+$.ajax({
+  method:'get',
+  url:"{% url 'edit_salle' %}",
+  data:{
+    'id':$("#select-salle").val(),
+  },
+  success:(function(data){
+    $("#numero_s").val(data.salle.numero);
+    $("#designation_s").val(data.salle.designation);
+    $("#prixoccup").val(data.salle.prixoccup);
+    $("#capacite").val(data.salle.capacite);
+    $("#image_s").val(data.salle.image);
+    $("#bloc_s").val(data.salle.bloc);
+  })
+})
+})
+
+//Modifier Catégorie
+$("#btn-salle-modifier").click((e)=>{   
+  if($("#designation_s").val() !==null && $("#numero_s").val() !==null && $("#capacite").val() !==null && $("#prixoccup").val() !==null && $("#bloc_s").val() !==null){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'edit_salle' %}",
+      data: {
+        id: $("#select-salle").val(),
+        designation: $("#designation_s").val(),
+        numero: $("#numero_s").val(),
+        capacite: $("#capacite").val(),
+        prixoccup: $("#prixoccup").val(),
+        image: $("#image_s").val(),
+        bloc: $("#bloc_s").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function(data){
+        parametre_suc('une salle','salle',data.msg, data.salles.obj);
+      },
+      error: function(err) {
+        console.log(err);
+        toastr.error(err.statusText)
+      }
+    });
+    }else{
+        toastr.error("Quelques champs obligatoires sont vides")
+    }
+  })
+
+//Supprimer boutique
+$("#btn-salle-supprimer").click(function(){
+  if($("#select-salle").val()=== null){
+    toastr.error("Vous devez d'abord sélectionner une salle.")
+  }else{
+    $("#modal-default").modal('show')
+    $(".modal-title").html("Suppression Salle")
+    $(".modal-body").html("Êtes-vous sûr de vouloir supprimer la salle "+$("#designation_s").val()+" ? Toutes les opérations effectuées sur celle-ci disparaîtrons. <br><br>Voulez-vous continuer ?")
+  }
+});
+$("#modal-continuer").click(function(){
+  $.ajax({
+    type: 'POST',
+    url: "{% url 'delete_salle' %}",
+    data: {
+      id: $("#select-salle").val(),
+      csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+    },
+    success:function(data){
+      $("#modal-default").modal('hide');
+      parametre_suc('une salle','salle', data.msg, data.salles.obj)
+    },
+    error:function(err){
+      toastr.danger("Erreur survenu :"+ err)
+      console.log(err.statusText)
+    }
+  })
+})
+
+
+function parametre_suc(nom_model='',nom_select='', obj_msg, obj_model){
+  $(".form-control").val("");
+  toastr.info(obj_msg);
+  var tab = `<option value="" selected disabled>sélectionnez `+nom_model+`</option>`;
+  $.each(obj_model, function(key, value){
+    tab += `<option value="`+value.id+`">`+value.numero+`</option>`;
+  });
+  $("#select-"+nom_select).html(tab);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//SELECT2 ET BOOTSTRAP SWITCH
+  $(document).ready(function() {
+    $('.form-select').select2();
+    $('#select-bloc').select2();
+  });
+
+  $("input[data-bootstrap-switch]").each(function(){
+    $(this).bootstrapSwitch('state', $(this).prop('checked'));
+  })
+
+
+//DETECT DEVICE
+
+  function detectDeviceType() {
+    const userAgent = navigator.userAgent;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+  }
+  if(detectDeviceType()==="Mobile"){
+    $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+  }
+</script>

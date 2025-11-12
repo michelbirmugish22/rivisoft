@@ -1,0 +1,64 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+{% include 'riviera/bases/head.html' %}
+<body class="hold-transition body-page dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+  
+<div class="wrapper">
+{% include 'riviera/bases/preloader.html' %}
+{% include 'riviera/bases/navbar.html' %}
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="" class="brand-link">
+      <img src="{% static 'dist/img/logo-hnr.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+      <span class="brand-text font-weight-light" id="app_name">Riviera SOFT</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      {% include 'riviera/bases/sidebar-user-panel.html' %}
+
+      <!-- SidebarSearch Form -->
+      <div class="form-inline">
+        <div class="input-group" data-widget="sidebar-search">
+          <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+          <div class="input-group-append">
+            <button class="btn btn-sidebar">
+              <i class="fas fa-search fa-fw"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% include 'riviera/bases/side_menu.html' %}
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+
+  <div id="contenu-page">
+        {% block content %}
+            
+        {% endblock content %}
+  </div>
+
+  <footer class="main-footer">
+    <span>Tous Droits réservés &copy; 2023-2024 <a href="#">Riviera SOFT</a> &nbsp;&nbsp; </span>
+    MICHEL MUGISHO &rightleftharpoons; Mémoire de fin d'études en Informatique de Gestion.
+    <div class="float-right d-none d-sm-inline-block">
+      <b>Version</b> 1.0.0
+    </div>
+  </footer>
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+{% include 'riviera/bases/scripts.html' %}
+</body>
+</html>

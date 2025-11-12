@@ -1,0 +1,237 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row g-2">
+          <div class="col-md-8">
+            <form action="" method="post" id="form-1">
+              {% csrf_token %}
+                <div class="card card-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">FOURNISSEURS</h3>
+                  </div>
+                  <div class="card-body row">
+                    <div class="form-group col-md-4">
+                      <label for="nom">Nom</label>
+                      <input type="text" class="form-control" id="nom">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="postnom">Post-nom</label>
+                      <input type="text" class="form-control" id="postnom">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="tel">Téléphone</label>
+                      <input type="text" class="form-control" id="tel">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="mail">Adresse mail</label>
+                      <input type="mail" class="form-control" id="mail">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="adresse">Adresse d'activités</label>
+                      <input type="text" class="form-control" id="adresse">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="type_ese">Enreprise</label>
+                      <select name="" id="type_ese" class="form-control">
+                        <option value="Commerciale">Commerciale</option>
+                        <option value="Industrielle">Industrielle</option>
+                        <option value="ONG">O.N.G</option>
+                        <option value="Particulier">Particulier</option>
+                        <option value="Gouvernement">Gouvernement</option>
+                        <option value="Autre privée">Autre Ese Privée</option>
+                        <option value="Autre publique">Autre Ese publique</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <button type="submit" class="btn btn-primary col-10" id="ajouter">Sauvegarder</button>
+                    </div>
+                    
+                    <div class="form-group col-md-12">
+                        <select name="" id="select-form1" class="form-control form-control-border">
+                            <option selected disabled>sélectionnez un fournisseur</option>
+                            {% for fss in fournisseurs %}
+                            <option value="{{fss.id}}">{{fss.nom}} {{fss.postnom}}</option>
+                            {% endfor %}                                  
+                        </select> 
+                        <button type="button" class="btn btn-outline-danger mt-2" id="btn-pdv-supprimer">Supprimer</button>
+                        <button type="button" class="btn btn-outline-primary mt-2" id="btn-pdv-modifier">Modifier</button>
+                    </div>
+                  </div>
+                </div>
+            </form>
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+{% include 'riviera/formulaires/modal.html' %}
+<script>
+  // Enregistrer 
+  $("#form-1").submit((e) => {
+    e.preventDefault();
+    if ($("#nom").val() !== null || $("#postnom").val() !== null) {
+        var formData = new FormData();
+        formData.append('nom', $("#nom").val());
+        formData.append('postnom', $("#postnom").val());
+        formData.append('tel', $("#tel").val());
+        formData.append('mail', $("#mail").val());
+        formData.append('type_ese', $("#type_ese").val());
+        formData.append('adresse', $("#adresse").val());
+        formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'save_fournisseur' %}",
+            data: formData,
+            processData:false,
+            contentType:false,        
+            success: function (data) {
+                toastr.success(data.msg);
+                $(".form-control").val("");
+                var tab = `<option value="" selected disabled>sélectionnez un fournisseur</option>`;
+                $.each(data.fournisseurs.obj, function (key, value) {
+                    tab += `<option value="${value.id}">${value.nom}</option>`;
+                });
+                $("#select-form1").html(tab);
+            },
+            error: function (err) {
+                console.log(err);
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("Quelques champs obligatoires sont vides");
+    }
+  });
+  
+  
+    //Selection Entreprise
+    $("#select-form1").change(function(){
+      $.ajax({
+        method:'get',
+        url:"{% url 'edit_fournisseur' %}",
+        data:{
+          'id':$("#select-form1").val(),
+        },
+        success:(function(data){
+          $("#nom").val(data.fournisseur.nom);
+          $("#postnom").val(data.fournisseur.postnom);
+          $("#tel").val(data.fournisseur.tel);
+          $("#mail").val(data.fournisseur.mail);
+          $("#adresse").val(data.fournisseur.adresse);
+          $("#type_ese").val(data.fournisseur.type_ese);
+        })
+      })
+    })
+  
+    //Modifier 
+    $("#btn-pdv-modifier").click((e)=>{   
+      if ($("#designation").val() !== null) {
+        var formData = new FormData();
+        formData.append('id', $("#select-form1").val());
+        formData.append('nom', $("#nom").val());
+        formData.append('postnom', $("#postnom").val());
+        formData.append('tel', $("#tel").val());
+        formData.append('mail', $("#mail").val());
+        formData.append('type_ese', $("#type_ese").val());
+        formData.append('adresse', $("#adresse").val());
+        formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+  
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'edit_fournisseur' %}",
+            data: formData,
+            processData:false,
+            contentType:false,        
+            success: function (data) {
+                toastr.success(data.msg);
+                $(".form-control").val("");
+                var tab = `<option value="" selected disabled>sélectionnez une fournisseur</option>`;
+                $.each(data.fournisseurs.obj, function (key, value) {
+                    tab += `<option value="${value.id}">${value.nom} ${value.postnom}</option>`;
+                });
+                $("#select-form1").html(tab);
+            },
+            error: function (err) {
+                console.log(err);
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("Quelques champs obligatoires sont vides");
+    }
+    })
+  
+    //Supprimer catégorie
+  $("#btn-pdv-supprimer").click(function(){
+      if($("#select-form1").val()=== null){
+        toastr.error("Vous devez d'abord sélectionner une société.")
+      }else{
+        $("#modal-default").modal('show')
+        $(".modal-title").html("Suppression d'un Fournisseur")
+        $(".modal-body").html("Vous êtes sur le point de supprimer notre fournisseur "+$("#nom").val()+" " +$("#postnom").val()+" ? Tous les produits achetés chez lui seront également supprimés... <br><br>Voulez-vous continuer avec cette suppression ?")
+      }
+    });
+    $("#modal-continuer").click(function(){
+      $.ajax({
+        type: 'POST',
+        url: "{% url 'delete_fournisseur' %}",
+        data: {
+          id: $("#select-form1").val(),
+          csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+        },
+        success:function(data){
+          $("#modal-default").modal('hide');
+          toastr.error(data.msg)
+          var tab = `<option value="" selected disabled>sélectionnez un fournisseur</option>`;
+          $.each(data.fournisseurs.obj, function (key, value) {
+              tab += `<option value="${value.id}">${value.nom}</option>`;
+          });
+          $("#select-form1").html(tab);
+        },
+        error:function(err){
+          alert("Erreur survenu :"+ err.statusText)
+          console.log(err.statusText)
+        }
+      })
+    })  
+  
+ 
+  //DETECT DEVICE
+  
+    function detectDeviceType() {
+      const userAgent = navigator.userAgent;
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+    }
+    if(detectDeviceType()==="Mobile"){
+      $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+    }
+  </script>

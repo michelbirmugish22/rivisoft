@@ -1,0 +1,195 @@
+{% extends 'riviera/bases/template.html' %}
+{% load static %}
+
+{% block content %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>GESTION DES UTILISATEURS DU SYSTEME</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <!-- left column -->
+          <div class="col-md-11">
+            <!-- general form elements -->
+            <div class="card card-default">
+              <!-- form start -->
+              <form action="{% url 'signin' %}" method="post">
+                <div class="card-body">
+                   <div class="row">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                   </div>
+                  </div>
+                  <!-- /.card-body -->
+
+                <div class="card-footer row">
+                  <button type="submit" class="btn btn-primary col-2">Submit</button>
+                  <div class="col-4"></div>
+                  <select class="form-control col-4 select2" id="id_user">
+                    {% for user in users %}
+                        <option value="{{ user.username }}">{{ user.first_name }}-{{ user.last_name }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="btn btn-primary col-2" id="edit_user">Modifier</button>
+                </div>
+              </form>
+            </div>
+            <!-- /.card -->
+
+          </div>
+          <!--/.col (left) -->
+          <!-- right column -->
+          <div class="col-md-11">
+            <!-- Form Element sizes -->
+            <div class="card card-success">
+                <div class="card-body">
+                    <table id="example" class="display table-bordered table-responsive-lg" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Noms complet</th>
+                                <th>Username</th>
+                                <th>Affectation</th>
+                                <th>Role</th>
+                                <th>Actif</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            {% for uti in users  %}
+                                
+                                {% if uti.username != user.username %}
+                                    <tr {% if uti.is_active == 0  %} class="text text-danger" {% endif %}>
+                                        <td>{{ uti.first_name }} {{ uti.last_name }}</td>
+                                        <td>{{ uti.username }}</td>
+                                        <td>{{ uti.get_affectation_display }}</td>
+                                        <td>{{ uti.get_role_display }}</td>
+                                        <td>{{ uti.is_active }}</td>
+                                        <td>
+                                            <a href="#" {% if uti.is_active == 0  %} class="btn btn-danger" {% else %} class="btn btn-success" {% endif %} > <i class="fa fa-edit"></i></a> 
+                                            <a href="{% url 'bloc_user' uti.username %}" {% if uti.is_active == 0  %} class="btn btn-danger" {% else %} class="btn btn-secondary" {% endif %} > <i class="fa fa-eye{% if uti.is_active == 0  %}-slash bg-danger{% endif %}"></i></a>
+                                            
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                    
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- /.card -->
+          </div>
+          <!--/.col (right) -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% if messages %}
+    {% for msg in messages %}
+      <script>
+        toastr.info("{{msg}}")
+      </script>
+    {% endfor %}
+  {% endif %}
+
+  <script>
+    $("#id_user").change((e)=>{
+      var form = new FormData();
+      form.append('username',$("#id_user").val());
+      form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+        type:'post',
+        url:"{% url 'edit_user' %}",
+        data:form,
+        processData:false,
+        contentType:false,
+        success:function(res){
+          toastr.info('Got results');
+          $("#id_username").val(res.user.username);
+          $("#id_first_name").val(res.user.first_name);
+          $("#id_last_name").val(res.user.last_name);
+          $("#id_tel").val(res.user.tel);
+          $("#id_affectation").val(res.user.affectation);
+          $("#id_nationalite").val(res.user.nationalite);
+          $("#id_adresse").val(res.user.adresse);
+          $("#id_role").val(res.user.role);
+          $("#id_sexe").val(res.user.sexe);
+          $("#id_password1").val(res.user.password);
+          $("#id_password2").val(res.user.password);
+          $("#id_password1").attr('disabled',true);
+          $("#id_password2").attr('disabled',true);
+          $("#id_username").attr('disabled',true);
+        },
+        error:function(err){
+          toastr.error("Something went wrong");
+        }
+      })
+    })
+  </script>
+
+<script>
+  $("#edit_user").click((e)=>{
+    e.preventDefault();
+    var form = new FormData();
+      form.append('action',"EDIT");
+      form.append('username',$("#id_user").val());
+      form.append('id_first_name',$("#id_first_name").val());
+      form.append('id_last_name',$("#id_last_name").val());
+      form.append('id_tel',$("#id_tel").val());
+      form.append('id_affectation',$("#id_affectation").val());
+      form.append('id_nationalite',$("#id_nationalite").val());
+      form.append('id_adresse',$("#id_adresse").val());
+      form.append('id_role',$("#id_role").val());
+      form.append('id_sexe',$("#id_sexe").val());
+      form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+        type:'post',
+        url:"{% url 'edit_user' %}",
+        data:form,
+        processData:false,
+        contentType:false,
+        success:function(res){
+          toastr.info('Got results');
+          $(".form-control").val("");
+        },
+        error:function(err){
+          toastr.error("Something went wrong");
+        }
+      })
+  })
+</script>
+
+
+  <script>
+    $(document).ready(function() {
+        $('#example').DataTable();
+    });
+</script>
+
+  
+  {% endblock content %}
+
+
+

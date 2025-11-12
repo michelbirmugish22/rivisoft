@@ -1,0 +1,101 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row mt-4">
+          <div class="card bg-light d-flex flex-fill">
+            <div class="card-header text-muted border-bottom-0">
+            </div>
+            <div class="card-body col-md-12 pt-0">
+              <div class="row ">
+                <div class="col-12">
+                  <div class="form-group">
+                    <p for="montant" class="form-label">Date du jour: <span class="bg-yellow" >{{ date_du_jour }}</span></p>
+                  </div>
+                  <div class="form-group">
+                    <label for="montant" class="form-label">Date actuelle du serveur aux points des ventes</label>
+                    <div class="form-control date_acc_pos">{{ account.account_date_pos }}</div>
+                  </div>
+                  <div class="form-group">
+                    <label for="montant" class="form-label">Date actuelle du serveur pour les chambres</label>
+                    <div class="form-control date_acc_room">{{ account.account_date_room }}</div>
+                  </div>
+                  <div class="form-group">
+                    <button class="btn btn-outline-success" id="btn_night_audit">Passer à la date suivante ...</button>
+                    {% comment %} <button class="btn btn-outline-warning" id="btn_night_audit">Passer à la date suivante CHAMBRES</button>
+                    <button class="btn btn-outline-info" id="btn_night_audit">Passer à la date suivante PDV</button> {% endcomment %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+
+{% include 'riviera/formulaires/modal.html' %}
+<script>
+  $("#btn_night_audit").click(function(){
+    $.ajax({
+      type:'GET',
+      processData:false,
+      contentType:false,
+      url:"{% url 'make_night_audit' %}",
+      success:function(res){
+        date_acc_room = $(".date_acc_room").text();
+        date_acc_pos = $(".date_acc_pos").text();
+        if(res.error){
+          $("#modal-default").modal()
+          $(".modal-title").html("Erreur clôture Journée Comptable")
+          $(".modal-body").html('<li class="bg-danger" >La journée du '+ date_acc_room +' pour les chambres n\'a pas été clôturée car la date demandé n\'est pas encore arrivée.</li>')
+          $(".modal-body").append('<li class="bg-danger" >La journée du '+ date_acc_pos +' pour les points de vente n\'a pas été clôturée car la date demandé n\'est pas encore arrivée..</li>')
+          $(".modal-footer").html("")
+        }else{
+          $(".content-wrapper").html("")
+          $("#modal-default").modal()
+          $(".modal-title").html("Clôture Journée Comptable")
+          $(".modal-body").html("<li>La journée du "+ date_acc_room +" pour les chambres a bel et bien été clôturée.</li>")
+          $(".modal-body").append("<li>La journée du "+ date_acc_pos +" pour les points de vente a bel et bien été clôturée.</li>")
+          $(".modal-footer").html("")
+        }
+      },
+      error:function(err){
+        toastr.error("La journée du ... n'a pas été clôturée.")
+      }
+
+    })
+  })
+</script> 
+
+
+
+
+
+

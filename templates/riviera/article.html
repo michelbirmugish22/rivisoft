@@ -1,0 +1,139 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-9">
+            <form action="" method="post" id="form-1" enctype="multipart/form-datta">
+              {% csrf_token %}
+                    <div class="card card-secondary">
+                      <!-- /.card-header -->
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="form-group col-md-6">
+                            <label for="designation">Désignation</label>
+                            <input type="text" class="form-control" id="designation" autocomplete="off" placeholder=".ex : Saucisson frites ...">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="qte">Qté Intiale disponible</label>
+                            <input type="number" class="form-control" id="qte" autocomplete="off" placeholder=".ex: 20.5">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="prix">Prix Intial</label>
+                            <input type="number" step="0.01" class="form-control" id="prix" autocomplete="off" placeholder=".ex: 20.5">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="unitmsr">Unité de mésure</label>
+                            <select name="" id="unitmsr" class="form-control">
+                                <option value="PC"selected>Pièce (PC)</option>                  
+                                <option value="BTL">Bouteille (BTL)</option>                  
+                                <option value="CRT">Carton (CRT)</option>                  
+                                <option value="KG">Kilogramme (KG)</option>                  
+                                <option value="G">Gramme (G)</option>                  
+                                <option value="Lt">Litre (Lt)</option>                  
+                                <option value="M">Mètre (M)</option>                  
+                                <option value="kWH">kilowatt heure (kWH)</option>                  
+                                <option value="GB">Gigabit (GB)</option>                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="groupe">Groupe</label>
+                            <select name="" id="groupe" class="form-control">
+                                <option selected disabled>sélectionnez un groupe</option>
+                                {% for grp in groupes %}
+                                  <option value="{{grp.id}}">{{grp.designation}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                          </div>
+                        </div>
+                        <div class="row">
+                          <button type="submit" class="btn btn-primary col-md-2" id="btn-send">Créer un article</button>
+                          <div class="col-md-3"></div>
+                          <div class=" row col-md-7">
+                            <select name="" id="select-form1" class="form-control form-control-border col-md-5">
+                                <option selected disabled>sélectionnez un article</option>
+                                {% for menu in articles %}
+                                  <option value="{{menu.id}}">{{menu.designation}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                            <button type="button" disabled class="btn btn-outline-danger col-md-3 m-1" id="btn-form1-supprimer">Supprimer</button>
+                            <button type="button" class="btn btn-outline-primary col-md-3 m-1" id="btn-form1-modifier">Modifier</button>
+                          </div>
+                        </div>
+
+                      </div>
+                      <!-- /.card-body -->
+                    </div>
+             </form>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+          <div class="card col-md-3">
+            <div class="card-header"><h5>Groupes des articles</h5></div>
+            <div class="card-body">
+              <form action="" id="form-2">
+                <div class="form-group">
+                  <label for="des_groupe">Désignation</label>
+                  <input type="text" class="form-control" id="des_groupe">
+                </div>
+                <div class="form-group">
+                  <label for="stock_groupe">STOCK</label>
+                  <select name="" id="stock_groupe" class="form-control form-control-border">
+                    <option selected disabled>sélectionnez un stock</option>
+                    {% for stock in stocks %}
+                      <option value="{{stock.id}}">{{stock.designation}}</option>
+                    {% endfor %}                                  
+                </select> 
+                </div>
+                
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary mr-1" id="btn-excel">Enregistrer</button> <br> <br>
+                  <div class="row">
+                    <select name="" id="select-form2" class="form-control form-control-border">
+                        <option selected disabled>sélectionnez un groupe</option>
+                        {% for groupe in groupes %}
+                          <option value="{{groupe.id}}">{{groupe.designation}}</option>
+                        {% endfor %}                                  
+                    </select> 
+                    <button type="button" disabled class="btn btn-outline-danger" id="btn-form2-supprimer">Supprimer</button>
+                    <button type="button" class="btn btn-outline-primary" id="btn-form2-modifier">Modifier</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+
+{% include 'riviera/formulaires/modal.html' %}
+{% include 'riviera/bases/CrudAjax/article.html' %}

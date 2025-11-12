@@ -1,0 +1,27 @@
+{% for i in compteur %}    
+<input type="hidden" value="{{ i }}" id="p{{ i }}">
+<div class="col-md-6 section_produit{{ i }}">
+    <div class="form-floating">
+        <label for="id_prod{{ i }}">Sélectionnez un ménu</label>
+        <select name="id_prod{{ i }}" id="id_prod{{ i }}" class="form-select col-md-12" placeholder="">
+            <option value=""></option>
+            {% for menu in menus %}
+            <option value="{{ menu.id }}" data-prix="{{ menu.prix }}">{{ menu.designation }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="qte_prod{{ i }}" id="qte_prod{{ i }}">
+        <input type="hidden" name="pv_prod{{ i }}" id="pv_prod{{ i }}">
+        <i class="alert text-success info_qte{{ i }}"></i>
+    </div>
+</div>
+<div class="col-md-6 section_qte{{ i }}">
+    <div class="form-floating">
+        <label for="qte_ven{{ i }}">Nombre</label>
+        <input type="number" max="999" min="1" id="qte_ven{{ i }}" class="form-control" name="qte_ven{{ i }}" placeholder="" autocomplete="off" >
+        <input type="hidden" name="ex_qte_ven{{ i }}" id="ex_qte_ven{{ i }}">
+        <input type="hidden" name="ligne_ven{{ i }}" id="ligne_ven{{ i }}">
+        <input type="hidden" name="num_ven" id="num_ven">
+    </div>
+</div>
+{% endfor %}
+

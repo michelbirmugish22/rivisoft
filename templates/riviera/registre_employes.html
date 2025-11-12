@@ -1,0 +1,85 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="card p-2">
+        <div class="table-responsive p-0" style="height: 550px;">
+          <table class="table table-bordered table-striped table-head-fixed text-nowrap" id="example1">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Noms & Postnoms</th>
+                <th>Catégorie</th>
+                <th>Fonction</th>
+                <th>Service</th>
+                <th>SB</th>
+                <th>Sexe</th>
+                <th>Etat civil</th>
+                <th>Enfants</th>
+                <th>Date de naissance</th>
+                <th>Date d'engagement</th>
+                <th>Adresse mail</th>
+                <th>Adrese physique</th>
+                <th>Téléphone</th>
+                <th>Niveau études</th>
+                <th>Nationnalité</th>
+                <th>Dossier</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for employe in employes %}
+              <tr>
+                <td>{{ employe.id }}</td>
+                <td>{{ employe.nom }} {{ employe.postnom }}</td>
+                <td>{{ employe.categorie.code }}</td>
+                <td>{{ employe.fonction }}</td>
+                <td>{{ employe.service.designation }}</td>
+                <td>{{ employe.categorie.salbase }}</td>
+                <td>{% if employe.sexe == 'M' %}Masculin{% else %}Féminin{% endif %}</td>
+                <td>{% if employe.etat_civil == 'M' %}Marié(e){% elif employe.etat_civil == 'C' %}Célibataire {% elif employe.etat_civil == 'D' %}Divorcé(e) {% endif %}</td>
+                <td>{{ employe.nb_enfant }}</td>
+                <td>{{ employe.date_naiss }}</td>
+                <td>{{ employe.date_engage }}</td>
+                <td>{{ employe.mail }}</td>
+                <td>{{ employe.adresse }}</td>
+                <td>{{ employe.tel }}</td>
+                <td>{{ employe.niveau_etu }}</td>
+                <td>{{ employe.nationalite }}</td>
+         
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <script>
+    $(function () {
+      $("#example1").DataTable();
+    });
+  </script>

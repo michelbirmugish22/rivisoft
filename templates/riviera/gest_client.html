@@ -1,0 +1,311 @@
+
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <ul class="nav nav-tabs" id="custom-content-above-tab" role="tablist">
+                  <li class="nav-item">
+                    <a class="nav-link btn-primary active" id="custom-content-above-home-tab" data-toggle="pill" href="#custom-content-above-home" role="tab" aria-controls="custom-content-above-home" aria-selected="true">Ajouter client</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link btn-primary" id="custom-content-above-profile-tab" data-toggle="pill" href="#custom-content-above-profile" role="tab" aria-controls="custom-content-above-profile" aria-selected="false">Modifier profil client</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link btn-primary" id="custom-content-above-messages-tab" data-toggle="pill" href="#custom-content-above-messages" role="tab" aria-controls="custom-content-above-messages" aria-selected="false">Voir état des client</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link btn-primary" id="custom-content-above-settings-tab" data-toggle="pill" href="#custom-content-above-settings" role="tab" aria-controls="custom-content-above-settings" aria-selected="false">Impression des états</a>
+                  </li>
+                </ul>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <div class="tab-content" id="custom-content-above-tabContent">
+                  <div class="tab-pane fade show active" id="custom-content-above-home" role="tabpanel" aria-labelledby="custom-content-above-home-tab">
+                     <form action="" id="form-client-enregistrer">
+                      {% csrf_token %}
+                      {% include 'riviera/formulaires/client.html' %}
+                     </form>
+                  </div>
+                  <div class="tab-pane fade" id="custom-content-above-profile" role="tabpanel" aria-labelledby="custom-content-above-profile-tab">
+                    <form action="" id="form-client-modifier">
+                      {% csrf_token %}
+                      {% include 'riviera/formulaires/client_m.html' %}
+                     </form>
+                  </div>
+                  <div class="tab-pane fade" id="custom-content-above-messages" role="tabpanel" aria-labelledby="custom-content-above-messages-tab">
+                  {{"Cette section est vide pour l'instant"}}
+                  </div>
+                  <div class="tab-pane fade" id="custom-content-above-settings" role="tabpanel" aria-labelledby="custom-content-above-settings-tab">
+                    {{"Cette section est vide pour l'instant"}}
+                  </div>
+                </div>
+                <!-- /.row -->
+              </div>
+              <!-- ./card-body -->
+              <div class="card-footer">
+                  <!-- /.card-header -->
+                  <div class="table-liste table-responsive p-0">
+                    <table id="example1" class="table table-bordered table-striped">
+                      <thead>
+                      <tr>
+                        <th>#ID</th>
+                        <th>Nom</th>
+                        <th>Postnom(s)</th>
+                        <th>Sexe</th>
+                        <th>Nationalité</th>
+                        <th>téléphone</th>
+                        <th>Adresse mail</th>
+                        <th>Adresse</th>
+                        <th>VVIP</th>
+                      </tr>
+                      </thead>
+                      <tbody id="data-clients">
+                      {% for client in clients %}
+                      <tr>
+                        <td>{{ client.id }}</td>
+                        <td>{{ client.nom }}</td>
+                        <td>{{ client.postnom }}</td>
+                        <td>{{ client.sexe }}</td>
+                        <td>{{ client.nationalite }}</td>
+                        <td>{{ client.tel }}</td>
+                        <td>{{ client.mail }}</td>
+                        <td>{{ client.adresse }}</td>
+                        <td>{{ client.typec }}</td>
+                      </tr>
+                      {% endfor %}
+                      </tbody>
+                      <tfoot>
+                      <tr>
+                        <th>#ID</th>
+                        <th>Nom</th>
+                        <th>Postnom(s)</th>
+                        <th>Sexe</th>
+                        <th>Nationalité</th>
+                        <th>téléphone</th>
+                        <th>Adresse mail</th>
+                        <th>Adresse</th>
+                        <th>VVIP</th>
+                      </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  <!-- /.card-body -->
+                
+              </div>
+              <!-- /.card-footer -->
+            </div>
+            <!-- /.card -->
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  {% include 'riviera/formulaires/modal.html' %}
+{% comment %} {% endblock content %} {% endcomment %}
+{% comment %} DATATABLES  {% endcomment %}
+{% comment %} SELECT2  {% endcomment %}
+<script>
+  $(document).ready(function() {
+    $('.form-select').select2();
+    $('#nationalite1').select2();
+    $('#nationalite').select2();
+  });
+
+  $("input[data-bootstrap-switch]").each(function(){
+    $(this).bootstrapSwitch('state', $(this).prop('checked'));
+  })
+
+  </script>
+{% comment %} DETECT DEVICE  {% endcomment %}
+<script>
+  function detectDeviceType() {
+    const userAgent = navigator.userAgent;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+  }
+  if(detectDeviceType()==="Mobile"){
+    $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+  }
+</script>
+
+{% comment %} ENREGISTREMENT {% endcomment %}
+<script>
+  $("#form-client-enregistrer").submit((e)=>{
+    e.preventDefault();    
+    if($("#nom").val() !=='' && $("#postnom").val() !=='' && $("#sexe").val() !==''){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'post_get_client' %}",
+      data: {
+        nom: $("#nom").val(),
+        postnom: $("#postnom").val(),
+        sexe: $('[name=sexe]:checked').val(),
+        nationalite: $("#nationalite").val(),
+        tel: $("#tel").val(),
+        mail: $("#mail").val(),
+        adresse_serv: $("#adresse_serv").val(),
+        adresse_rdc: $("#adresse_rdc").val(),
+        profession: $("#profession").val(),
+        lieu_nais: $("#lieu_nais").val(),
+        date_nais: $("#date_nais").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function(data){
+        toastr.info(data.msg);
+        $("#data-clients").append(`
+        <tr>
+          <td>`+data.client.id+`</td>
+          <td>`+data.client.nom+`</td>
+          <td>`+data.client.postnom+`</td>
+          <td>`+data.client.sexe+`</td>
+          <td>`+data.client.nationalite+`</td>
+          <td>`+data.client.mail+`</td>
+          <td>`+data.client.tel+`</td>
+          <td>`+data.client.adresse_serv+`</td>
+        </tr>
+        `);
+        $(".form-control").val("");
+        setTimeout(function(){
+          $("#reponse-form").html("")
+        },5000)
+
+      },
+      error: function(err) {
+        $("#reponse-form").addClass("alert alert-danger");
+        toastr.error(err.statusText);
+        console.log(err);
+      }
+    });
+    }else{
+        toastr.error("Quelques champs obligatoires sont vides")
+    }
+  })
+</script>
+
+{% comment %} MODIFICATION {% endcomment %}
+<script>
+  $("#form-client-modifier").submit((e)=>{
+    e.preventDefault();    
+    if($("#nom1").val() !=='' && $("#postnom1").val() !=='' && $("#sexe1").val() !==''){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'put_client' %}",
+      data: {
+        id: $("#client-liste").val(),
+        nom: $("#nom1").val(),
+        postnom: $("#postnom1").val(),
+        sexe: $('[name=sexe1]:checked').val(),
+        nationalite: $("#nationalite1").val(),
+        tel: $("#tel1").val(),
+        mail: $("#mail1").val(),
+        adresse_serv: $("#adresse_serv1").val(),
+        adresse_rdc: $("#adresse_rdc1").val(),
+        profession: $("#profession1").val(),
+        lieu_nais: $("#lieu_nais1").val(),
+        date_nais: $("#date_nais1").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function(data){
+        $(".form-control").val("");
+        toastr.success(data.msg);
+      },
+      error: function(err) {
+        $("#reponse-form1").addClass("alert alert-danger");
+        $("#reponse-form1").text(err.statusText);
+        console.log(err);
+      }
+    });
+    }else{
+
+        $("#reponse-form").addClass("alert alert-danger");
+        $("#reponse-form").html("<center>Quelques champs obligatoires sont vides</center>");
+      setTimeout(function(){
+        $("#reponse-form").removeClass("alert alert-danger");
+        $("#reponse-form").html("")
+      }, 10000);
+      
+    }
+  })
+</script>
+
+{% comment %} LISTE DEROULANTE {% endcomment %}
+<script>
+  $("#client-liste").change(function(){
+    $.ajax({
+      method:'get',
+      url:"{% url 'post_get_client' %}",
+      data:{
+        'id':$("#client-liste").val(),
+      },
+      success:(function(data){
+        $("#card-edit-client").css('display', 'block');
+        $("#nom1").val(data.client.nom);$("#postnom1").val(data.client.postnom);$("#sexe1 option:checked").val(data.client.sexe);
+        $("#mail1").val(data.client.mail);$("#nationalite1").val(data.client.nationalite);$("#tel1").val(data.client.tel);
+        $("#profession1").val(data.client.profession);$("#date_nais1").val(data.client.date_nais);$("#lieu_nais1").val(data.client.lieu_nais);
+        $("#nationalite1").contents(data.client.nationalite);$("#adresse_serv1").val(data.client.adresse_serv);
+      })
+    })
+  })
+</script>
+{% comment %} SUPPRIMER CLIENT  {% endcomment %}
+<script>
+  $("#supprimer-client").click(function(){
+    if($("#client-liste").val()===""){
+      toastr.error("Vous devez sélectionner un client avant.")
+    }else{
+      $("#modal-default").modal('show')
+      $(".modal-title").html("Suppression Client")
+      $(".modal-body").html("Êtes-vous sûr de vouloir supprimer ce client ?")
+    }
+  });
+  $("#modal-continuer").click(function(){
+    $.ajax({
+      type:'POST',
+      url : "{% url 'delete_client' %}",
+      data : {
+        id:$("#client-liste").val()
+      },
+      success:function(data){
+        $("#modal-default").modal('hide');
+        var select_client = $("#select-client-parent").html()
+        //$("#select-client-parent").html("")
+        //$("#select-client").html(select_client)
+
+        
+        toastr.error(data.msg);
+      },
+      error:function(err){
+        alert("Erreur survenu :"+ err)
+        console.log(err)
+      }
+    })
+  })
+</script>

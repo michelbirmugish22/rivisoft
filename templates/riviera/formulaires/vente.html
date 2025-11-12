@@ -1,0 +1,139 @@
+  <div class="card">
+    <div id="reponse-form"></div>
+    <div class="card-body">
+      <form method="post" class="row g-3" id="form-vente">
+        <div class="row div-ligne-vente">
+        <div class="col-md-6">
+          <div class="form-floating">
+            <label for="date_ven">Date de vente {{ date_pdv }} </label>
+            <input type="date" class="form-control" id="date_ven" value="{{ date_pdv|safe }}" name="date_ven" disabled>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <label for="id_client">Client</label>
+            <select name="id_client" id="id_client" class="form-select col-md-12" placeholder="" required>
+              <option value="1" selected>CLIENT ORDINAIRE</option>
+                {% for c in checkins %}
+                  <option value="{{ c.client.id }}">{{ c.client.nom }} {{ c.client.postnom }}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        {% include 'riviera/lignes-ventes.html' %}
+        </div>
+        <div class="col-md-6">
+            <button type="button" class="btn btn-primary" id="ajouter-vente"><i class="fas fa-plus"></i></button>
+            <button type="button" data-bs-toggle="modal" id="enregvente" class="btn btn-primary">Enregistrer</button>
+            <button type="reset" class="btn btn-danger">Reset</button>
+        </div>
+        {% comment %} <div class="form-check form-switch col-md-6">
+          <input class="form-check-input" type="checkbox" name="f_payee" id="flexSwitchCheckDefault">
+          <label class="form-check-label" for="flexSwitchCheckDefault">Facture PAYEE CASH en totalité.</label>
+        </div> {% endcomment %}
+        
+        <div class="text-center">
+          
+        </div>
+      </form>
+      
+    </div>
+    <!-- /.card-body -->
+  </div>
+
+
+  <script>
+  
+  $(document).ready(function () {
+      for (let i = 2; i <=20; i++) {
+          $(".section_produit"+i).hide();
+          $(".section_qte"+i).hide();
+      }
+  });
+  
+    $("#ajouter-vente").on("click", function () {
+      var min=2000
+  
+      // ici je trouve le minimum des controls cashés
+      for (let i = 1; i <=20; i++){
+          if($(".section_produit"+i).is(":hidden") && parseInt($("#p"+i).val())<min){
+              min=parseInt($("#p"+i).val());
+          }
+      }
+      if(parseFloat($("#qte_ven"+(min-1)).val()) > parseFloat($("#qte_prod"+(min-1)).val())){
+        $(".msg_info").text("La qté demandé n'est pas disponible. Il ne reste que "+$("#qte_prod"+(min-1)).val()+ " pièces en stock.")
+        $(".msg_title").text("Stock insuffisant")
+        $("#message_modal").modal("show")
+        $("#qte_ven"+(min-1)).css("background-color","red");
+        $("#qte_ven"+(min-1)).css("color","white");
+      }
+      else{
+        $("#qte_ven"+(min-1)).css("background-color","white");
+        $("#qte_ven"+(min-1)).css("color","black");
+  
+        if($.trim($("#qte_ven"+(min-1)).val()).length>0 && $.trim($("#id_prod"+(min-1)).val()).length>0){
+          $(".section_produit"+min).show();
+          $(".section_qte"+min).show();
+          add_tab(min-1)
+        }else{
+          toastr.error("La Quantité ou le champs menu ne peuvent pas être vide.")
+        }
+      }
+    });
+  
+  i=0;
+  function add_tab(id){
+      i+=1;
+      var id_prod = $("#id_prod"+id).val();
+      var qte_ven = $("#qte_ven"+id).val();
+      var pt =qte_ven*$("#id_prod"+id+" option:selected").data("prix")
+      pt =Math.round(pt*100)/100
+      var ligne = `
+      <tr>
+          <td id="id">${i}</td>
+          <td id="prod">${$("#id_prod"+id+" option:selected").text()}</td>
+          <td id="qte">${qte_ven}</td>
+          <td id="pu">${Math.round($("#id_prod"+id+" option:selected").data("prix")*100)/100}</td>
+          <td id="pt">${pt}</td>
+      </tr>
+      `
+      tot = parseFloat($("#tot").text())+pt
+      $("#tot").text(tot)
+      $(".forme-facture").append(ligne)
+  }
+  
+  
+  //Quand on sélectionne le client et la date
+  $("#id_client").on("change", function () {
+      $("#nom_ven_tab").text("Client : "+$("#id_client option:selected").text())
+  });
+  $("#date_ven").on("change", function () {
+      $("#date_ven_tab").text("Date : "+$("#date_ven").val())
+  });
+  </script>
+  
+  <script>
+  $(".enre").on("click", function (e) {
+      e.preventDefault()
+      alert("OK")
+  });
+  </script>
+  
+  <!--    -->
+  <script>
+  for (let i = 1; i <= 20; i++) {
+    $("#id_prod"+i).on("change", function () {
+      
+      $("#qte_prod"+i).val($("#id_prod"+i+" option:selected").data("qte"))
+      $("#pv_prod"+i).val($("#id_prod"+i+" option:selected").data("pu"))
+  });
+  }
+  </script>
+    
+  <script>
+  for(let i=0;i<=20;i++){
+    $(".section_produit"+i).on("change", function(){
+      $(".info_qte"+i).text("Prix: "+$("#id_prod"+i+" option:selected").data("prix")+" USD")
+    })
+  }
+  </script>

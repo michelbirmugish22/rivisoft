@@ -1,0 +1,125 @@
+{% extends 'riviera/bases/template.html' %}
+{%load static%}
+
+{% block content %}  
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row col-12 mt-4">
+          <nav class="w-100">
+            <div class="nav nav-tabs" id="rapports-tab" role="tablist">
+              <a class="nav-item nav-link active" id="rapports-gen-tab" data-toggle="tab" href="#rapports-gen" role="tab" aria-controls="product-desc" aria-selected="true">NOS DEBITEURS</a>
+              <a class="nav-item nav-link" id="rapports-restau-tab" data-toggle="tab" href="#rapports-restau" role="tab" aria-controls="product-comments" aria-selected="false">PAYEMENTS</a>
+              <a class="nav-item nav-link" id="rapports-bar-tab" data-toggle="tab" href="#rapports-bar" role="tab" aria-controls="product-rating" aria-selected="false">RAPPORTS DE REGLEMENT</a>
+              <a class="nav-item nav-link" id="rapports-piscine-tab" data-toggle="tab" href="#rapports-piscine" role="tab" aria-controls="product-rating" aria-selected="false">RAPPORT GENERAL</a>
+            </div>
+          </nav>
+          <div class="tab-content col-12 p-3" id="nav-tabContent">
+            <div class="tab-pane col-12 fade show active" id="rapports-gen" role="tabpanel" aria-labelledby="rapports-gen-tab">
+              <div class="card d-flex flex-fill col-12">
+                <div class="card-body col-12">
+                  <table class="table table-bordered table-hover col-12">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>NOM DU CREANCIER</th>
+                        <th>ORGANISATION</th>
+                        <th>CHAMBRE</th>
+                        <th>DETTE TOTAL</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                      {% for c in creanciers %}
+                        <tr data-widget="expandable-table" aria-expanded="false">
+                          <td>{{ c.checkin.id }}</td>
+                          <td>{{ c.checkin.client.nom }} {{ c.checkin.client.postnom }}</td>
+                          <td>{{ c.checkin.entreprise.nom }}</td>
+                          <td>{{ c.checkin.chambre.numero }}</td>
+                          <td>{{ c.montant_accom|add:c.montant_extra }}</td>
+                        </tr>
+                        <tr class="expandable-body">
+                          <td colspan="5">
+                            <div class="card">
+                              <table>
+                                <tr>
+                                  <th>Créance</th>
+                                  <th>Valeur</th>
+                                </tr>
+                                <tr>
+                                  <td>Accomodation</td>
+                                  <td>{{ c.montant_accom }}</td>
+                                </tr>
+                                {% for pv in pdvs %}
+                                  <tr>
+                                    <td>{{ pv.designation }}</td>
+                                    
+                                    {% for d in dettes_factures %}
+                                      
+                                      {% if d.vente.pointvente.id == pv.id and d.occupation_id == c.checkin.id %}
+                                        <td> <span class="badge badge-warning"> <br> {{ d.date|date:"d/m/y" }}</span> {{ d.montant }}</td>
+                                      {% endif %}
+                                        
+                                    {% endfor %}
+                                      
+                                  </tr>
+                                {% endfor %}
+                                {% for pv in autres %}
+                                  <tr>
+                                    <td>{{ pv.designation }}</td>
+                                    <td></td>
+                                  </tr>
+                                {% endfor %}
+                                  
+                              </table>
+                            </div>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <!-- /.card-body -->
+              </div>
+            </div>
+            <div class="tab-pane fade" id="rapports-restau" role="tabpanel" aria-labelledby="rapports-restau-tab"> Restaurant. </div>
+            <div class="tab-pane fade" id="rapports-bar" role="tabpanel" aria-labelledby="rapports-bar-tab"> Terrasse-Bar. </div>
+            <div class="tab-pane fade" id="rapports-piscine" role="tabpanel" aria-labelledby="rapports-piscine-tab"> Piscine et salle de sport. </div>
+            <div class="tab-pane fade" id="rapports-boite" role="tabpanel" aria-labelledby="rapports-boite-tab"> Boite de nuit. </div>
+            <div class="tab-pane fade" id="rapports-buanderie" role="tabpanel" aria-labelledby="rapports-buanderie-tab"> Buandérie. </div>
+          </div>
+        </div>
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+<script>
+    $("[name=empl_category]").change((e)=>{
+        $("#form-print").attr('action',"{% url 'rapports_ress_hum_print' %}")
+        $("[name=empl_category_hidden]").attr('value',$("[name=empl_category]").val())
+    })
+</script>
+
+  {% endblock content %}
+  

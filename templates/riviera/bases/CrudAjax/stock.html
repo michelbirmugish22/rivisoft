@@ -1,0 +1,125 @@
+<script>
+// Enregistrer catégorie
+$("#form-1").submit((e) => {
+  e.preventDefault();
+  if ($("#designation").val() !== null) {
+      var formData = new FormData();
+      formData.append('designation', $("#designation").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'save_stock' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              var tab = `<option value="" selected disabled>sélectionnez un Point de vente</option>`;
+              $.each(data.stocks.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form1").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+});
+
+
+  //Selection catégorie
+  $("#select-form1").change(function(){
+    $.ajax({
+      method:'get',
+      url:"{% url 'edit_stock' %}",
+      data:{
+        'id':$("#select-form1").val(),
+      },
+      success:(function(data){
+        $("#designation").val(data.pdv.designation);
+      })
+    })
+  })
+
+  //Modifier pdv
+  $("#btn-stock-modifier").click((e)=>{   
+    if ($("#designation").val() !== null) {
+      var formData = new FormData();
+      formData.append('id', $("#select-form1").val());
+      formData.append('designation', $("#designation").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'edit_stock' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              var tab = `<option value="" selected disabled>sélectionnez un Point de vente</option>`;
+              $.each(data.stocks.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form1").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+  })
+
+  //Supprimer catégorie
+$("#btn-stock-supprimer").click(function(){
+    if($("#select-form1").val()=== null){
+      toastr.error("Vous devez d'abord sélectionner un point de vente.")
+    }else{
+      $("#modal-default").modal('show')
+      $(".modal-title").html("Suppression Point de vente")
+      $(".modal-body").html("Vous êtes sur le point de supprimer le point de vente "+$("#designation").val()+" ? Toutes les opérations effectuées à ce point de vente disparaîtrons du logiciel. Pensez tout d'abord à faire une sauvegarde enfin d'éviter tout sinistre. <br><br>Voulez-vous continuer avec cette suppression ?")
+    }
+  });
+  $("#modal-continuer").click(function(){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'delete_stock' %}",
+      data: {
+        id: $("#select-form1").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success:function(data){
+        $("#modal-default").modal('hide');
+        toastr.error(data.msg)
+        var tab = `<option value="" selected disabled>sélectionnez un Point de Vente</option>`;
+        $.each(data.stocks.obj, function (key, value) {
+            tab += `<option value="${value.id}">${value.designation}</option>`;
+        });
+        $("#select-form1").html(tab);
+      },
+      error:function(err){
+        alert("Erreur survenu :"+ err.statusText)
+        console.log(err.statusText)
+      }
+    })
+  })
+
+//DETECT DEVICE
+
+  function detectDeviceType() {
+    const userAgent = navigator.userAgent;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+  }
+  if(detectDeviceType()==="Mobile"){
+    $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+  }
+</script>

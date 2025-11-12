@@ -1,0 +1,171 @@
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-12">
+          <h1 class="m-0">{{ titre }}</h1>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
+
+  <!-- Main content -->
+  <section class="content">
+        <div class="col-md-12">
+          <form action="" method="post">
+            <div class="card">
+              <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                  <tr>
+                    <th>Demandeur</th>
+                    <th>Date</th>
+                    <th>NUM</th>
+                    <th>Remarque</th>
+                    <th>Etat</th>
+                    <th>Action</th>
+                  </tr>
+                  
+                  {% for com in commandes %}
+                    <tr>
+                      <td>{{ com.utilisateur.username|upper }}</td>
+                      <td>{{ com.datec }}</td>
+                      <td id="id_commande">{{ com.id }}</td>
+                      <td>{{ com.remarque }}</td>
+                      <td><span class="badge 
+                        {% if com.etat == 'LIVREE' %}badge-danger{% endif %}
+                        {% if com.etat == 'ENCOURS' %}badge-warning{% endif %}
+                        {% if com.etat == 'AUTHORISEE1' %}badge-info{% endif %}
+                          ">{{ com.etat }}</span></td>
+                      <td>
+                        {% if user.affectation == 'MAG' or user.affectation == 'GER' or user.is_staff == 1  %}
+                        {% if com.etat != 'LIVREE' %}
+                        <a href="#" class="btn btn-sm btn-danger rejeter"><i class="fas fa-trash-restore-alt"></i></a>
+                        <a href="#" class="btn btn-sm btn-success approuver"><i class="fas fa-check-circle"></i></a>
+                        {% endif %}
+                        {% endif %}
+                        <a href="#" class="btn btn-sm btn-info info"><i class="fas fa-eye"></i></a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                    
+                </table>
+              </div>
+            </div>
+          </form>
+        </div>
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+{% include 'riviera/formulaires/modal.html' %}
+<!--  ----------------------------------------------------------------------------------------------  -->
+<!--  VALIDATION DE COMMANDES  -->
+<!--  ----------------------------------------------------------------------------------------------  -->
+<script>
+  var id_ca;
+  $(".info").click((e)=>{
+    id_ca = parseInt($(e.currentTarget).closest('tr').find('#id_commande').text().trim());
+    var boite_info = `
+    <table class="table table-bordered">
+                <thead>
+                  <tr>
+                      <th>N°</th>
+                      <th>Désignation</th>
+                      <th>Quantité</th>
+                  </tr>
+                  </thead>
+                  <tbody id="forme-facture2">
+  
+                  </tbody>
+            </table>
+    `;
+    $("#modal-default").modal({backdrop:'static'});
+    $(".modal-header").html("INFOS SUR LA COMMANDE NUMERO "+id_ca);
+    $(".modal-body").html(boite_info);
+    $(".modal-footer").html("");
+    $(".modal-footer").html(`<div></div>`);
+    $(".modal-footer").append(`<button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>`);
+
+    var form = new FormData();
+    form.append('id_ca',id_ca);
+    form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+    $.ajax({
+      type:'post',
+      url:"{% url 'sortie_stock' %}",
+      data:form,
+      processData:false,
+      contentType:false,
+      success:function(res){
+        $("#prev-panel").css('display','block');
+        $("#forme-facture2").html("");
+        var tot = 0.0; 
+        var i=1;
+        $.each(res.lignes.obj, function(key, value){
+          $.ajax({
+            type:'get',
+            url:"{% url 'edit_article' %}",
+            data:{id:value.article},
+            success:function(res){
+              $("#forme-facture2").append(`<tr>
+                <td id="id">${i}</td>
+                <td id="prod">${ res.article.designation }</td>
+                <td id="qte">${value.qte}</td>
+            </tr>`);
+            i+=1;
+            }
+          })
+          tot += value.prix*value.qte;
+          
+        });
+        $("#tot2").text(tot.toFixed(2));
+        
+      },
+      error:function(err){
+        toastr.error(err)
+      }
+    }) 
+  })
+  var div_operat;
+  $(".approuver").click((e)=>{
+    id_ca = parseInt($(e.currentTarget).closest('tr').find('#id_commande').text().trim());
+    div_operat = `
+    <form method="post" active="mgfdyee" id="form-valider-achat">
+      {% csrf_token %}
+      <div class="form-group col-md-12">
+        {% csrf_token %}
+      <div class="form-group col-md-12">
+        Voulez-vous vraiment livrer cette commande. Cela va entrainer une variation négative du stock.
+      </div>
+    </form>
+    `;
+    $("#modal-default").modal({backdrop:'static'});
+    $(".modal-header").html("Livraison de la commande N°"+id_ca);
+    $(".modal-body").html(div_operat);
+    $(".modal-footer").html(`<button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+          <button type="button" class="btn btn-primary" id="modal-continuer" >Continuer</button>`);
+    $("#modal-continuer").text("Livrer la commande");
+
+    $("#modal-continuer").click((e)=>{
+      e.preventDefault();
+      var form = new FormData();
+      form.append('id_ca',id_ca);
+      form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+        type:'post',
+        url:"{% url 'sortie_stock_url' %}",
+        data:form,
+        processData:false,
+        contentType:false,
+        success:function(res){
+          $("#modal-default").modal('hide');
+          toastr.info("Commande livrée");
+        }
+      });
+    });
+  });
+
+</script>
+

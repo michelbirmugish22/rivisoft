@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RivieraSOFT | Connexion</title>
+
+  <!-- Google Font: Source Sans Pro -->
+  {% comment %} <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"> {% endcomment %}
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+  <style>
+    form .errorlist{
+      color:rgb(0, 0, 0);
+      /* list-style:none */
+      font-size: 14px;
+      background-color: rgb(248, 202, 202);
+      padding: 10px 5px 10px 25px;
+      border-radius: 5px;
+      border: 0.5px solid rgb(243, 149, 149);
+    }
+    .helptext{
+      color:rgb(0, 0, 0);
+      font-size: 14px;
+      background-color: rgb(25, 245, 120);
+      padding: 5px 5px 5px 10px;
+      border-radius: 5px;
+      border: 0.5px solid rgb(125, 255, 100);
+    }
+    li{
+      list-style:list;
+      margin-left: -10%;
+    }
+    input{
+      width: 100%;
+      border-radius: 1px;
+      border: 0.1px solid rgb(0, 0, 0);
+    }
+  </style>
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+  <!-- /.login-logo -->
+  <div class="card card-outline card-primary">
+    <div class="card-header text-center">
+      <img src="{% static 'dist/img/logo-hnr.png' %}" alt="" class="col-12" style="background-color: rgba(200, 1, 1, 0.753);">
+      <a href="#" class="h5"><b>Riviera - </b>SOFT</a>
+      <h5>Changer le mot de passe</h5>
+    </div>
+    <div class="card-body">
+
+      <form action="{% url 'change_password' %}" method="post">
+        
+        {% if messages %}
+          
+          {% for msg in messages %}
+            <div class="alert alert-success">{{msg}}</div>
+          {% endfor %}
+            
+        {% endif %}
+          
+        {% csrf_token %}
+        {{ form }}
+        {% comment %} <div class="row">
+          <div class="col-12">
+            <label for="" class="form-label">Nom d'utilisateur</label>
+            <input type="text" class="form-control">
+          </div>
+          <div class="col-12">
+            <label for="" class="form-label">Ancien mot de passe</label>
+            <input type="password" class="form-control">
+          </div>
+          <div class="col-12">
+            <label for="" class="form-label">Nouveau mot de passe</label>
+            <input type="password" class="form-control">
+          </div>
+          <div class="col-12">
+            <label for="" class="form-label">Confirmer le nouveau mot de passe</label>
+            <input type="password" class="form-control">
+          </div>
+        </div>
+        <br> {% endcomment %}
+        <div class="row">
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-block">Soumettre</button>
+          </div>
+          <!-- /.col -->
+        </div>
+      </form>
+      <p class="mb-0">
+        <a href="{% url 'login' %}" class="text-center">J'ai déjà un compte</a>
+      </p>
+    </div>
+    <!-- /.card-body -->
+  </div>
+  <!-- /.card -->
+</div>
+<!-- /.login-box -->
+
+<!-- jQuery -->
+<script src="{%static 'plugins/jquery/jquery.min.js'%}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+</body>
+</html>
+
+<div class="card-footer">
+</div>

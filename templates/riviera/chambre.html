@@ -1,0 +1,159 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-9">
+            <form action="{% url 'save_bloc' %}" method="post" id="form-chambre">
+              {% csrf_token %}
+                    <div class="card card-secondary">
+                      <div class="card-header">
+                        <h3 class="card-title">Ajouter, Modifier ou Supprimer une chambre</h3>
+                      </div>
+                      <!-- /.card-header -->
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="form-group col-md-6">
+                            <label for="exampleInputBorder">Numéro <code> de la chambre</code></label>
+                            <input type="text" class="form-control form-control-border" name="numero" id="numero" autocomplete="off" placeholder=".ex : 301, 609, 100, ...">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="etage">Niveau <code> sur le boc </code></label>
+                            <select name="" id="niveau" class="form-control form-control-border">
+                                <option value="0"selected>Rez-de-chaussée</option>                  
+                                <option value="1">1er niveau</option>                  
+                                <option value="2">2ème niveau</option>                  
+                                <option value="3">3ème niveau</option>                  
+                                <option value="4">4ème niveau</option>                  
+                                <option value="5">5ème niveau</option>                  
+                                <option value="6">6ème niveau</option>                  
+                                <option value="7">7ème niveau</option>                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="categorie">Catégorie <code> sur laquelle appartient la chambre</code></label>
+                            <select name="" id="categorie" class="form-control form-control-border">
+                                <option selected disabled>sélectionnez une catégorie</option>
+                                {% for cat in categories %}
+                                  <option value="{{cat.id}}">{{cat.designation}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="bloc">Bloc <code> sur lequel se trouve la chambre</code></label>
+                            <select name="" id="bloc" class="form-control form-control-border">
+                                <option selected disabled>sélectionnez un bloc</option>
+                                {% for bloc in blocs %}
+                                  <option value="{{bloc.id}}">{{bloc.designation}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                          </div>
+                        </div>
+                        <div class="row">
+                          <button type="submit" class="btn btn-primary col-md-2">Créer</button>
+                          <div class="col-md-3"></div>
+                          <div class=" row col-md-7">
+                            <select name="" id="select-cha" class="form-control form-control-border col-md-5">
+                                <option selected disabled>sélectionnez une chambre</option>
+                                {% for cha in chambres %}
+                                  <option value="{{cha.id}}">{{cha.numero}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                            <button type="button" class="btn btn-outline-danger col-md-3 m-1" id="btn-cha-supprimer">Supprimer</button>
+                            <button type="button" class="btn btn-outline-primary col-md-3 m-1" id="btn-cha-modifier">Modifier</button>
+                          </div>
+                        </div>
+
+                      </div>
+                      <!-- /.card-body -->
+                    </div>
+             </form>
+            <!-- /.card -->
+            <div class="card card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">Importer un fichier Excel</h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <form action="">
+                  <div class="row">
+                    <div class="form-group col-md-6">
+                      <label for="exampleInputBorder">Fichier <code> format .xlsx</code></label>
+                      <input type="file" class="form-control form-control-border" id="file-bloc">
+                    </div>
+                    <div class="form-group col-6"> <br>
+                      <button type="button" class="btn btn-primary mr-2" id="btn-excel">Executer ...</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="card col-md-3">
+            <div class="card-header"><h5>Catégories des chambres</h5></div>
+            <div class="card-body">
+              <form action="" id="form-categorie">
+                <div class="form-group">
+                  <label for="exampleInputBorder">Désignation <code> Catégorie</code></label>
+                  <input type="text" class="form-control" id="des_cat">
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputBorder">Prix <code> d'une nuitée</code></label>
+                  <input type="number"  min="0"  class="form-control" id="prix">
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputBorder">Capacité <code> d'accueil (pax)</code></label>
+                  <input type="number" min="1" max="10" class="form-control" id="paxmax">
+                </div>
+                <div class="form-group"> <br>
+                  <button type="submit" class="btn btn-primary mr-1" id="btn-excel">Ajout</button>
+                  <div class=" row ">
+                    <select name="" id="select-cat" class="form-control form-control-border">
+                        <option selected disabled>sélectionnez une catégorie</option>
+                        {% for cat in categories %}
+                          <option value="{{cat.id}}">{{cat.designation}}</option>
+                        {% endfor %}                                  
+                    </select> 
+                    <button type="button" class="btn btn-outline-danger" id="btn-cat-supprimer">Supprimer</button>
+                    <button type="button" class="btn btn-outline-primary" id="btn-cat-modifier">Modifier</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+
+{% include 'riviera/formulaires/modal.html' %}
+{% include 'riviera/bases/CrudAjax/chambre.html' %}

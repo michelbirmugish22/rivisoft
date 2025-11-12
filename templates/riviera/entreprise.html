@@ -1,0 +1,215 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row g-2">
+          <div class="col-md-8">
+            <form action="" method="post" id="form-1">
+              {% csrf_token %}
+                <div class="card card-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">ENTREPRISE / ORGANISATION</h3>
+                  </div>
+                  <div class="card-body row">
+                    <div class="form-group col-md-12">
+                      <label for="exampleInputBorder">Nom <code> Désignation</code></label>
+                      <input type="text" class="form-control" id="nom">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="exampleInputBorder">Adresse <code> adresse d'activités</code></label>
+                      <input type="text" class="form-control" id="adresse">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="exampleInputBorder">Activité <code> exércée</code></label>
+                      <input type="text" class="form-control" id="activite">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="exampleInputBorder">Rélation <code> avec nous</code></label>
+                      <input type="text" class="form-control" id="notre_relation">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <button type="submit" class="btn btn-primary col-10" id="ajouter">Sauvegarder</button>
+                    </div>
+                    
+                    <div class="form-group col-md-12">
+                        <select name="" id="select-form1" class="form-control form-control-border">
+                            <option selected disabled>sélectionnez un point de vente</option>
+                            {% for ese in entreprises %}
+                            <option value="{{ese.id}}">{{ese.nom}}</option>
+                            {% endfor %}                                  
+                        </select> 
+                        <button type="button" class="btn btn-outline-danger mt-2" id="btn-pdv-supprimer">Supprimer</button>
+                        <button type="button" class="btn btn-outline-primary mt-2" id="btn-pdv-modifier">Modifier</button>
+                    </div>
+                  </div>
+                </div>
+            </form>
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+{% include 'riviera/formulaires/modal.html' %}
+<script>
+  // Enregistrer 
+  $("#form-1").submit((e) => {
+    e.preventDefault();
+    if ($("#nom").val() !== null) {
+        var formData = new FormData();
+        formData.append('nom', $("#nom").val());
+        formData.append('activite', $("#activite").val());
+        formData.append('notre_relation', $("#notre_relation").val());
+        formData.append('adresse', $("#adresse").val());
+        formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'save_entreprise' %}",
+            data: formData,
+            processData:false,
+            contentType:false,        
+            success: function (data) {
+                toastr.success(data.msg);
+                $(".form-control").val("");
+                var tab = `<option value="" selected disabled>sélectionnez une entreprise</option>`;
+                $.each(data.entreprises.obj, function (key, value) {
+                    tab += `<option value="${value.id}">${value.nom}</option>`;
+                });
+                $("#select-form1").html(tab);
+            },
+            error: function (err) {
+                console.log(err);
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("Quelques champs obligatoires sont vides");
+    }
+  });
+  
+  
+    //Selection Entreprise
+    $("#select-form1").change(function(){
+      $.ajax({
+        method:'get',
+        url:"{% url 'edit_entreprise' %}",
+        data:{
+          'id':$("#select-form1").val(),
+        },
+        success:(function(data){
+          $("#nom").val(data.ese.nom);
+          $("#activite").val(data.ese.activite);
+          $("#adresse").val(data.ese.adresse);
+          $("#notre_relation").val(data.ese.notre_relation);
+        })
+      })
+    })
+  
+    //Modifier 
+    $("#btn-pdv-modifier").click((e)=>{   
+      if ($("#designation").val() !== null) {
+        var formData = new FormData();
+        formData.append('id', $("#select-form1").val());
+        formData.append('nom', $("#nom").val());
+        formData.append('activite', $("#activite").val());
+        formData.append('notre_relation', $("#notre_relation").val());
+        formData.append('adresse', $("#adresse").val());
+        formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+  
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'edit_entreprise' %}",
+            data: formData,
+            processData:false,
+            contentType:false,        
+            success: function (data) {
+                toastr.success(data.msg);
+                $(".form-control").val("");
+                var tab = `<option value="" selected disabled>sélectionnez une entreprise</option>`;
+                $.each(data.entreprises.obj, function (key, value) {
+                    tab += `<option value="${value.id}">${value.nom}</option>`;
+                });
+                $("#select-form1").html(tab);
+            },
+            error: function (err) {
+                console.log(err);
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("Quelques champs obligatoires sont vides");
+    }
+    })
+  
+    //Supprimer catégorie
+  $("#btn-pdv-supprimer").click(function(){
+      if($("#select-form1").val()=== null){
+        toastr.error("Vous devez d'abord sélectionner une société.")
+      }else{
+        $("#modal-default").modal('show')
+        $(".modal-title").html("Suppression d'une organisation")
+        $(".modal-body").html("Vous êtes sur le point de supprimer l'entreprise "+$("#nom").val()+" ? Toutes les opérations effectuées sur cette organisation disparaîtrons du logiciel. Pensez tout d'abord à faire une sauvegarde enfin d'éviter tout sinistre. <br><br>Voulez-vous continuer avec cette suppression ?")
+      }
+    });
+    $("#modal-continuer").click(function(){
+      $.ajax({
+        type: 'POST',
+        url: "{% url 'delete_entreprise' %}",
+        data: {
+          id: $("#select-form1").val(),
+          csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+        },
+        success:function(data){
+          $("#modal-default").modal('hide');
+          toastr.error(data.msg)
+          var tab = `<option value="" selected disabled>sélectionnez une entreprise</option>`;
+          $.each(data.entreprises.obj, function (key, value) {
+              tab += `<option value="${value.id}">${value.nom}</option>`;
+          });
+          $("#select-form1").html(tab);
+        },
+        error:function(err){
+          alert("Erreur survenu :"+ err.statusText)
+          console.log(err.statusText)
+        }
+      })
+    })  
+  
+ 
+  //DETECT DEVICE
+  
+    function detectDeviceType() {
+      const userAgent = navigator.userAgent;
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+    }
+    if(detectDeviceType()==="Mobile"){
+      $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+    }
+  </script>

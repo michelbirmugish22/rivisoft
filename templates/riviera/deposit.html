@@ -1,0 +1,182 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">CHAMBRE {{ checkin.chambre.numero }} - <i class="nav-icon fas fa-cash-register"></i> {{ titre }} </h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-10">
+            <div class="card">
+              <div class="card-body">
+                <div class="row">
+                  <table class="">
+                    <tr>
+                      <td colspan="3"><p class="display-5">
+                        <i class="fas fa-user"></i>
+                         {{ checkin.client.nom }} {{ checkin.client.postnom }}</p></td>
+                    </tr>
+                    <tr>
+                      <td colspan="3"><p>
+                        <i class="fas fa-calendar"></i>
+                        {{ checkin.datearr }} - {{ checkin.datesor }} <br> &nbsp;&nbsp;&nbsp; <span class="text text-primary">{{ nuitees }} NUITEES</span> &nbsp;&nbumpe; ${{ checkin.prixnuitee }} </p></td>
+                    </tr>
+                    <tr>
+                      <td><p>
+                        <i class="fas fa-dollar-sign"></i>
+                        {{ checkin.avance }} USD</p></td>
+                    </tr>
+                    <tr>
+                      <td><p class="text text-danger">
+                        <span class="badge badge-success"><i class="fas fa-dollar-sign"></i>{{ reste}} USD - Accommodation</span> </p>
+                        <input type="hidden" id="reste_dette" value="{{reste}}">
+                      </td>
+                      <td><p class="text text-danger">
+                        <span class="badge badge-warning"><i class="fas fa-dollar-sign"></i>{{ dette_extras }} USD - Extras</span> </p>
+                        <input type="hidden" id="dette_extras" value="{{dette_extras}}">
+                      </td>
+                      <td><p class="text text-danger">
+                        <span class="badge badge-danger"><i class="fas fa-dollar-sign"></i>{{ total_a_payer }} USD - Reste à Payer</span> </p>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <form id="form_paiement">
+                  {% csrf_token %}
+                  <div class="col-sm-12">
+                    <!-- radio -->
+                    <div class="form-group clearfix">
+                      
+                      {% for op in operateurs %}
+                        <div class="icheck-primary d-inline">
+                          <input type="radio" id="op-{{ op.id }}" value="{{ op.id }}" name="mode">
+                          <label for="op-{{ op.id }}"> {{ op.designation }}
+                          </label>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-group">
+                      <label for="montant">Montant payé</label>
+                      <input type="number" class="form-control" id="montant" placeholder="SOMME DEPOSEE">
+                    </div>
+                    <div class="icheck-primary d-inline">
+                      <input type="radio" id="concerne1" value="A" name="concerne" checked>
+                      <label for="concerne1"> Accommodation
+                      </label>
+                    </div>
+                    <div class="icheck-primary d-inline">
+                      <input type="radio" id="concerne2" value="E" name="concerne">
+                      <label for="concerne2"> Etra
+                      </label>
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputPassword1">Libellé</label>
+                        <textarea  class="form-control" name="libelle" id="libelle">
+
+                        </textarea>
+                    </div>
+                  </div>
+                  <!-- /.card-body -->
+  
+                  <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">SAUVEGARDER LE PAIEMENT</button>
+                    
+                  </div> 
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="card col-md-2">
+            <div class="row">
+              <a href="{% url 'historique_de_payement' num=checkin.id %}" target="_parent" class="btn btn-primary mr-3 ">Historique</a>
+              <a href="{% url 'facture_client_chambre' num=checkin.id %}" target="_parent" class="btn btn-primary mr-3 ">Facture </a>
+              <div class="btn btn-primary retour_statut_cha">Retour</div>
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+
+{% include 'riviera/formulaires/modal.html' %}
+
+<script>
+  $("#form_paiement2").submit((e)=>{
+    e.preventDefault();
+  })
+</script>
+<script>
+  $(document).ready(function(){
+    $("#form_paiement").submit(function(e){
+        e.preventDefault();
+        if($.trim($("#montant").val()).length==0 || $.trim($("#libelle").val()).length==0 || $("[name=mode]:checked").val() == undefined ){
+          toastr.warning("Veuillez compléter tous les champs nécessaires !")
+        }
+        else if(parseFloat($("#reste_dette").val()) < parseFloat($("#montant").val()) && $("[name=concerne]:checked").val() === "A" ){
+          toastr.error("Le montant à payer ne doit pas aller au-dela de la dette du client pour l'Accommodation.");
+        }
+        else if(parseFloat($("#dette_extras").val()) < parseFloat($("#montant").val()) && $("[name=concerne]:checked").val() === "E" ){
+          toastr.error("Le montant à payer ne doit pas aller au-dela de la dette du client sur les Extras.");
+        }
+        else{
+          var form = new FormData()
+          form.append('mode',parseInt($("[name=mode]:checked").val()));
+          form.append('concerne',$("[name=concerne]:checked").val());
+          form.append('montant',$("#montant").val());
+          form.append('libelle',$("#libelle").val());
+          form.append('id_ci',{{ checkin.id }});
+          form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+          $.ajax({
+            type:'POST',
+            url:"{% url 'deposit_chambre' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(data){
+              toastr.info(data.msg);
+              $("#txt_reste").text(parseFloat($("#reste_dette").val())- parseFloat($("#montant").val()));
+              $("#montant").val("");$("#libelle").val("");
+              var id_recu = data.id_recu;
+              var url = "{% url 'recu_de_payement' num=0 %}".replace('0', id_recu);
+              $(".card-footer").append(`<a target="_blank" href="${url}" type="button" class="btn btn-primary ml-4" id="btn_print_receipt">Imprimer réçu n° `+id_recu+`</a>`);
+            },
+            error:function(err){
+              toastr.error("Une erreur s'est produite !");
+            }
+          });
+        }
+    })
+  })
+</script>
+
+<script>
+  $(".retour_statut_cha").click(function(){$.ajax({url:"{% url 'statut_cha' %}",type:'GET',success:function(response){$("#contenu-page").html(response);$(".nav-link").removeClass("active");$(".statut_cha").addClass("active")},})})
+</script>

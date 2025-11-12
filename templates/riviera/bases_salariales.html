@@ -1,0 +1,427 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-12">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="card p-2">
+        <div class="table-responsive p-0" style="height: 550px;">
+          <form>
+            {% csrf_token %}
+          <table class="table table-bordered table-striped table-head-fixed text-nowrap">
+            <tbody>
+              <tr>
+                <th>Période</th>
+                <td>
+                  <select class="form-control form-control-lg" id="mois">
+                    <option value="1" {% if mois_actuel == 1 %} selected {% endif %}>Janvier</option>
+                    <option value="2" {% if mois_actuel == 2 %} selected {% endif %}>Février</option>
+                    <option value="3" {% if mois_actuel == 3 %} selected {% endif %}>Mars</option>
+                    <option value="4" {% if mois_actuel == 4 %} selected {% endif %}>Avril</option>
+                    <option value="5" {% if mois_actuel == 5 %} selected {% endif %}>Mai</option>
+                    <option value="6" {% if mois_actuel == 6 %} selected {% endif %}>Juin</option>
+                    <option value="7" {% if mois_actuel == 7 %} selected {% endif %}>Juillet</option>
+                    <option value="8" {% if mois_actuel == 8 %} selected {% endif %}>Août</option>
+                    <option value="9" {% if mois_actuel == 9 %} selected {% endif %}>Septembre</option>
+                    <option value="10" {% if mois_actuel == 10 %} selected {% endif %}>Octobre</option>
+                    <option value="11" {% if mois_actuel == 11 %} selected {% endif %}>Novembre</option>
+                    <option value="12" {% if mois_actuel == 12 %} selected {% endif %}>Décembre</option>
+                  </select>
+                </td>
+                <td>
+                  <select class="form-control form-control-lg" id="annee">
+                    {% for annee in annees %}
+                    <option value="{{ annee }}" {% if annee_actuelle == annee %} selected {% endif %}>{{ annee }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th>Jours prestés</th>
+                <td><input type="text" autocomplete="off" name="" id="jrs_prestes" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_jrs_prestes">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_jrs_prestes" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+              <tr>
+                <th>Jours de maladie</th>
+                <td><input type="text" autocomplete="off"  name="" id="jrs_maladie" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_jrs_maladie">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_jrs_maladie" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+              <tr>
+                <th>Heures supplémentaires</th>
+                <td><input type="text" autocomplete="off"  name="" id="hrs_supp" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_hrs_supp">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_hrs_supp" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+              <tr>
+                <th>Prime</th>
+                <td><input type="text" autocomplete="off"  name="" id="prime" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_prime">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_prime" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+              <tr>
+                <th>Transport</th>
+                <td><input type="text" autocomplete="off"  name="" id="transport" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_transport">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_transport" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+              <tr>
+                <th>Communication</th>
+                <td><input type="text" autocomplete="off"  name="" id="communication" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_communication">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_communication" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+
+              <tr>
+                <th>Logement</th>
+                <td><input type="text" name="" id="logement" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_logement">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_logement" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+
+              <tr>
+                <th>Allocations Familliales</th>
+                <td><input type="text" autocomplete="off"  name="" id="allocation_fam" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_allocation_fam">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_allocation_fam" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+
+              <tr>
+                <th>IPR</th>
+                <td><input type="text" autocomplete="off"  name="" id="ipr" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_ipr">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_ipr" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+
+              <tr>
+                <th>CNSS</th>
+                <td><input type="text" autocomplete="off"  name="" id="cnss" size="2" class="form-control form-control-lg"></td>
+                <td>
+                  <select class="form-control form-control-lg" id="empl_cnss">
+                    <option value="all">Tous</option>
+                    <optgroup label="Par service">
+                      {% for emp in services %}
+                        <option value="S{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Par département">
+                      {% for emp in departements %}
+                        <option value="D{{ emp.id }}">{{ emp.designation }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    <optgroup label="Individuel">
+                      {% for emp in employes %}
+                        <option value="{{ emp.id }}">{{ emp.nom }}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </td>
+                <td><a href="#" class="btn btn-lg btn-primary" id="btn_cnss" target="_blank" rel="noopener noreferrer"><i class="fas fa-save"></i></a></td>
+              </tr>
+
+
+
+            </tbody>
+          </table>
+        </form>
+        </div>
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <script>
+
+btn_click(action="jrs_prestes",value="jrs_prestes");
+btn_click(action="jrs_maladie",value="jrs_maladie");
+btn_click(action="hrs_supp",value="hrs_supp");
+btn_click(action="prime",value="prime");
+btn_click(action="transport",value="transport");
+btn_click(action="communication",value="communication");
+btn_click(action="logement",value="logement");
+btn_click(action="allocation_fam",value="allocation_fam");
+btn_click(action="ipr",value="ipr");
+btn_click(action="cnss",value="cnss");
+
+
+function btn_click(action="", value=""){
+  $("#btn_"+action).click((e)=>{
+    e.preventDefault();
+    var value_ = parseInt($("#"+value).val());
+    var empl_= $("#empl_"+action).val();
+    var mois= $("#mois").val();
+    var annee= $("#annee").val();
+    if (parseInt($("#"+action).val())>0){
+      if(action=="jrs_prestes" && parseInt($("#"+action).val())>30){
+        toastr.error("Tous les mois doivent être évalués à 30 jours max")
+      }else{
+      var form = new FormData();
+      form.append('value', value_);
+      form.append('action', ""+action);
+      form.append('empl_', empl_);
+      form.append('mois', mois);
+      form.append('annee', annee);
+      form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+        type:"post",
+        url:"{% url 'remuneration_employes' %}",
+        data:form,
+        processData:false,
+        contentType:false,
+        success:function(res){
+          $("#"+action).val("");
+          toastr.success("Votre requête est "+res.msg+" !");
+        },
+        error:function(err){
+          toastr.error(err);
+        }
+      })
+    }
+    }else{
+      toastr.error("Veuillez mentionner la valeur du champ *"+value+"*")
+    }
+  })
+}
+  </script>
+
+
+  <script>
+    $("#btn_jrs_prestes222").click((e)=>{
+      e.preventDefault();
+      var jrs_prestes= parseInt($("#jrs_prestes").val());
+      var empl_jrs_prestes= $("#empl_jrs_prestes").val();
+      var mois= $("#mois").val();
+      var annee= $("#annee").val();
+      if (parseInt($("#jrs_prestes").val())>0){
+        if(parseInt($("#jrs_prestes").val())>30){
+          toastr.error("Tous les mois doivent être évalués à 30 jours max")
+        }else{
+        var form = new FormData();
+        form.append('jrs_prestes',jrs_prestes);
+        form.append('empl_',empl_jrs_prestes);
+        form.append('mois',mois);
+        form.append('annee',annee);
+        form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+          type:"post",
+          url:"{% url 'remuneration_employes' %}",
+          data:form,
+          processData:false,
+          contentType:false,
+          success:function(res){
+            toastr.success("Done successfully "+res.msg)
+          },
+          error:function(err){
+            toastr.error(err);
+          }
+        })
+      }
+      }else{
+        toastr.error("Veuillez mentionner le nombre des jours préstés")
+      }
+    })
+  </script>

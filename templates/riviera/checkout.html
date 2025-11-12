@@ -1,0 +1,183 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">CHAMBRE {{ checkin.chambre.numero }} - <i class="nav-icon fas fa-cash-register"></i> {{ titre }} </h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-10">
+            <div class="card">
+              <div class="card-body">
+                <div class="row">
+                  <table class="">
+                    <tr>
+                      <td colspan="3"><p class="display-5">
+                        <i class="fas fa-user"></i>
+                         {{ checkin.client.nom }} {{ checkin.client.postnom }}</p></td>
+                         <input type="hidden" id="checkin_id" value="{{ checkin.id }}">
+                         <input type="hidden" id="datesor" value="{{ new_datesor }}">
+                         <input type="hidden" id="nuitees" value="{{ nuitees }}">
+                         <input type="hidden" id="montant_extra" value="{{ dette_extras }}">
+                         <input type="hidden" id="montant_accom" value="{{ reste_accom }}">
+                    </tr>
+                    <tr>
+                      <td colspan="3"><p>
+                        <i class="fas fa-calendar"></i>
+                        {{ checkin.datearr }} - {{ checkin.datesor }} <br> &nbsp;&nbsp;&nbsp; <span class="text text-primary">{{ nuitees }} NUITEES</span> &nbsp;&nbumpe; ${{ checkin.prixnuitee }} </p></td>
+                    </tr>
+                    <tr>
+                      <td><p>
+                        <i class="fas fa-dollar-sign"></i>
+                        {{ checkin.avance }} USD</p></td>
+                    </tr>
+                    <tr>
+                      <td><p class="text text-danger">
+                        <span class="badge badge-success"><i class="fas fa-dollar-sign"></i>{{ reste_accom}} USD - Accommodation</span> </p>
+                        <input type="hidden" id="reste_dette" value="{{reste_accom}}">
+                      </td>
+                      <td><p class="text text-danger">
+                        <span class="badge badge-warning"><i class="fas fa-dollar-sign"></i>{{ dette_extras }} USD - Extras</span> </p>
+                        <input type="hidden" id="dette_extras" value="{{dette_extras}}">
+                      </td>
+                      <td><p class="text text-danger">
+                        <span class="badge badge-danger"><i class="fas fa-dollar-sign"></i>{{ dette_totale }} USD - Reste à Payer</span> </p>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <form id="checkout_form1">
+                  {% csrf_token %}
+                  <div class="col-sm-12">
+                    <table class="table table-bordered">
+                      <tr>
+                        <th>Total Accommodaion</th><td id="total_accom">{{ total_accom }}$</td><td><span  class="badge badge-danger" id="reste_accom">{{ reste_accom }} $</span></td>
+                      </tr>
+                      <tr>
+                        <th>Total Extras</th><td id="total_dette_extras">{{ total_dette_extras }}$</td><td><span  class="badge badge-danger" id="dette_extras">{{ dette_extras }} $</span></td>
+                      </tr>
+                      <tr>
+                        <th>Total Général</th><td id="total_a_payer">{{ total_a_payer }}$</td><td><span  class="badge badge-danger" id="dette_totale2">{{ dette_totale }} <input type="hidden" id="dette_totale" value="{{ dette_totale }}"> $</span></td>
+                      </tr>
+                      <tr id="ligne_mode">
+                        <th> <a href="#" class="btn btn-warning" id="btn_change_mode"> <i class="fas fa-arrow-left"></i> </a> 
+                          <span id="text_mode">Débiter au compte de : </span>
+                        </th>
+                        <td colspan="2">
+                          <div id="entreprises">
+                            <select name="" class="form-control" id="entreprise">
+                              {% for ese in entreprises %}
+                                <option value="{{ ese.id }}">{{ ese.nom }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                          <div id="clients_chambre">
+                            <select id="client" class="form-control">
+                              {% for ese in enregistrements %}
+                                <option value="{{ ese.id }}">Chambre {{ ese.chambre.numero }} &rightarrowtail;{{ ese.client.nom }} {{ ese.client.postnom }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+  
+                  <div class="card-footer">
+                    <button type="submit" class="btn btn-primary btn_checkout">VALIDER LA SORTIE DU CLIENT</button>
+                  </div> 
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="card col-md-2">
+            <div class="row">
+              <div class="btn btn-primary retour_statut_cha">Retour <i class="fas fa-arrow-alt-circle-right"></i></div>
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+
+{% include 'riviera/formulaires/modal.html' %}
+
+<script>
+  if(parseFloat($("#dette_totale").val()) == 0.0){
+    $("#ligne_mode").css('display','none');
+  }
+  $("#text_mode").text("Débiter au compte de  : ");
+  $("#clients_chambre").css('display','none');
+  $("#entreprises").css('display','block');
+  $("#btn_change_mode").click((e)=>{
+    if ( $("#text_mode").text() == "Transferer la dette vers la chambre de : "){
+      $("#text_mode").text("Débiter au compte de  : ");
+      $("#clients_chambre").css('display','none');
+    $("#entreprises").css('display','block');
+    }else{
+      $("#text_mode").text("Transferer la dette vers la chambre de : ");
+      $("#clients_chambre").css('display','block');
+      $("#entreprises").css('display','none');
+    }
+    
+    
+  })
+</script>
+<script>
+  $("#checkout_form1").submit((e)=>{
+    e.preventDefault();
+    var form = new FormData();
+    form.append("checkin",$("#checkin_id").val());
+    form.append("datesor",$("#datesor").val());
+    form.append("nuitees",$("#nuitees").val());
+    form.append("montant_extra",parseFloat($("#montant_extra").val()));
+    form.append("montant_accom",parseFloat($("#montant_accom").val()));
+    form.append("credit",$("#credit").val());
+    form.append("client",$("#client").val());
+    form.append("entreprise",$("#entreprise").val());
+    form.append("csrfmiddlewaretoken",$("[name=csrfmiddlewaretoken]").val());
+    $.ajax({
+      type:"post",
+      url : "{% url 'checkout_form' %}",
+      data:form,
+      processData:false,
+      contentType:false,
+      success:function(res){
+        toastr.info(res.msg)
+      },
+      error:function(f, xhr, err){
+        toastr.danger(err)
+      }
+    })
+  })
+</script>
+
+<script>
+  $(".retour_statut_cha").click(function(){$.ajax({url:"{% url 'statut_cha' %}",type:'GET',success:function(response){$("#contenu-page").html(response);$(".nav-link").removeClass("active");$(".statut_cha").addClass("active")},})})
+</script>

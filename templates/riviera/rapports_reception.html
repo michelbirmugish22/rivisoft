@@ -1,0 +1,203 @@
+{% extends 'riviera/bases/template.html' %}
+{%load static%}
+{% load custom_filters %}
+
+{% block content %}  
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row col-12 mt-4">
+          <nav class="w-100">
+            <div class="nav nav-tabs" id="rapports-tab" role="tablist">
+              <a class="nav-item nav-link active" id="rapports-gen-tab" data-toggle="tab" href="#rapports-gen" role="tab" aria-controls="product-desc" aria-selected="true">FINANCEMENT</a>
+              {% comment %} <a class="nav-item nav-link" id="rapports-restau-tab" data-toggle="tab" href="#rapports-restau" role="tab" aria-controls="product-comments" aria-selected="false">FINANCEMENT JOURNALIER</a> {% endcomment %}
+              <a class="nav-item nav-link" id="rapports-bar-tab" data-toggle="tab" href="#rapports-bar" role="tab" aria-controls="product-rating" aria-selected="false">BREAKFAST LIST</a>
+              {% comment %} <a class="nav-item nav-link" id="rapports-piscine-tab" data-toggle="tab" href="#rapports-piscine" role="tab" aria-controls="product-rating" aria-selected="false">PRETS ET DETTES</a> {% endcomment %}
+            </div>
+          </nav>
+          <div class="tab-content p-3" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="rapports-gen" role="tabpanel" aria-labelledby="rapports-gen-tab">
+              <form action="" class="row" method="get">
+                <div class="form-group col-5">
+                  <label for="date1" class="form-label">Date debut</label>
+                  <input type="date" name="date1" value="{{ date1|safe }}" class="form-control" id="">
+                </div>
+                <div class="form-group col-5">
+                  <label for="date1" class="form-label">Date fin</label>
+                  <input type="date" name="date2" value="{{ date2|safe }}"  class="form-control" id="">
+                </div>
+                <div class="form-group col-2">
+                  <button type="submit" class="btn btn-warning mt-4">Filtrer</button>
+                </div>
+              </form>
+              <div class="table-responsive p-0">
+                {% for date_jr, paiements in paiements_periodique.items %}
+                <h6>{{ date_jr }}</h6>
+                <table class="table table-bordered table-responsive table-striped table-head-fixed text-nowrap" id="example1">
+                  <thead>
+                    <tr>
+                      <th>N°</th>
+                      <th>NOMS DU CLIENT</th>
+                      <th>CHAMBRE</th>
+                      <th>ORGANISATION</th>
+                      <th>LOGEMENT</th>
+                      <th>EXTRAS</th>
+                      <th>SALLE</th>
+                      <th>TOTAL</th>
+                      <th>OBSERVATION</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for id_ci, p in paiements.items %}
+                      {% if id_ci != 'total_acc' and id_ci != 'total_extra' and id_ci != 'total_gen' %}
+                      <tr>
+                        <td><a href="#">#{{ forloop.counter }}</a></td>
+                        <td>{{ p.nom_cli }}</td>
+                        <td>{{ p.chambre }}</td>
+                        <td>{{ p.entreprise }}</td>
+                        <td>{{ p.accommodation}}</td>
+                        <td>{{ p.extra }}</td>
+                        <td>0</td>
+                        <td>{{ p.total_mtn }}</td>
+                        <td>{{ p.mode }}</td>
+                        {% comment %} {% empty %}
+                        <td colspan="9">Aucun paiement trouvé aujourd'hui</td> {% endcomment %}
+                      </tr>
+                      {% endif %}
+                      {% endfor %}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th colspan="4">TOTAL</th>
+                      <th>{{ paiements.total_acc }}</th>
+                      <th>{{ paiements.total_extra }}</th>
+                      <th>0</th>
+                      <th>{{ paiements.total_gen }}</th>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+                {% endfor %}
+                <div>
+                  <a href="{% url 'breakfastlist' %}" target="_blank" rel="noopener noreferrer">Imprimer la liste</a>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="rapports-restau" role="tabpanel" aria-labelledby="rapports-restau-tab">
+              <div class="table-responsive p-0">
+                <table class="table table-bordered table-responsive table-striped table-head-fixed text-nowrap" id="example1">
+                  <thead>
+                    <tr>
+                      <th>N°</th>
+                      <th>CHAMBRE</th>
+                      <th>CLIENT</th>
+                      <th>SORTIE</th>
+                      <th>NB NUITEES</th>
+                      <th>PAYE</th>
+                      <th>DETTE</th>
+                      <th>TOTAL LOGEMENT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for p in checkouts %}
+                      <tr>
+                        <td><a href="#">#{{ forloop.counter }}</a></td>
+                        <td>{{ p.checkin.chambre.numero }}</td>
+                        <td>{{ p.checkin.client.nom }}</td>
+                        <td>{{ p.datesor|date:"%d/%m/%Y"}}</td>
+                        <td>{{ p.nuitees }}</td>
+                        <td>{{ p.checkin.prixnuitee|multiply:p.nuitees }}</td>
+                        {% empty %}
+                        <td colspan="9">Aucun paiement trouvé aujourd'hui</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th colspan="4">TOTAL</th>
+                      <th>{{ total_log }}</th>
+                      <th>{{ total_extra }}</th>
+                      <th>0</th>
+                      <th>{{ total_gen }}</th>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+                <div>
+                  <a href="{% url 'breakfastlist' %}" target="_blank" rel="noopener noreferrer">Imprimer la liste</a>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="rapports-bar" role="tabpanel" aria-labelledby="rapports-bar-tab">
+              
+              <div class="table-responsive p-0">
+                <table class="table table-bordered table-responsive table-striped table-head-fixed text-nowrap" id="example1">
+                  <thead>
+                    <tr>
+                      <th>N°</th>
+                      <th>Chambre</th>
+                      <th>Noms & Postnoms</th>
+                      <th>DATE ARRIVEE</th>
+                      {% comment %} <th>DATE SORTIE</th> {% endcomment %}
+                      <th>PAX</th>
+                      <th>SOCIETE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for ci in checkins %}
+                      <tr>
+                        <td><a href="{% url 'info_client_chambre' ci.id %}">#{{ forloop.counter }}</a></td>
+                        <td>{{ ci.chambre.numero }}</td>
+                        <td>{{ ci.client.nom }} {{ ci.client.postnom }}</td>
+                        <td>{{ ci.datearr}}</td>
+                        {% comment %} <td>{{ ci.datesor}}</td> {% endcomment %}
+                        <td>{{ ci.nbpax}}</td>
+                        <td>{{ ci.entreprise.nom}}</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+                </table>
+                <div>
+                  <a href="{% url 'breakfastlist' %}" target="_blank" rel="noopener noreferrer">Imprimer la liste</a>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="rapports-piscine" role="tabpanel" aria-labelledby="rapports-piscine-tab"> Piscine et salle de sport. </div>
+            <div class="tab-pane fade" id="rapports-boite" role="tabpanel" aria-labelledby="rapports-boite-tab"> Boite de nuit. </div>
+            <div class="tab-pane fade" id="rapports-buanderie" role="tabpanel" aria-labelledby="rapports-buanderie-tab"> Buandérie. </div>
+          </div>
+        </div>
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+<script>
+    $("[name=empl_category]").change((e)=>{
+        $("#form-print").attr('action',"{% url 'rapports_ress_hum_print' %}")
+        $("[name=empl_category_hidden]").attr('value',$("[name=empl_category]").val())
+    })
+</script>
+
+  {% endblock content %}
+  

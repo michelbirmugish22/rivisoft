@@ -1,0 +1,301 @@
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-12">
+          <h1 class="m-0">{{ titre }}</h1>
+          <span>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              {% for pdv in pdvs %}
+              <label for="pdv_{{ pdv.id }}" class="btn bg-olive {% if forloop.counter == 1 %} active {% endif %}">
+                  <input type="radio" name="pdv" id="pdv_{{ pdv.id }}" value="{{ pdv.id }}" autocomplete="off" {% if forloop.counter == 1 %} checked {% endif %}> {{ pdv.designation }}
+              </label>
+              {% endfor %}
+            </div>
+          </span>
+        </div><!-- /.col -->
+        <div class="col-sm-12">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+            <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+
+      <div class="row g-2">
+        {% if user.affectation != 'MAG' %}
+        <div class="col-md-8">
+          <form action="" id="form-client-enregistrer">
+            {% csrf_token %}
+            <div class="card">
+              <div class="card-body">
+                <form method="post" class="row g-3" id="form-vente">
+                  <div class="row div-ligne-vente">
+                  <div class="col-md-12">
+                    <div class="form-floating">
+                      <label for="remarque">Remarque, libellé ou cause *</label>
+                     <input type="text" name="" id="remarque" class="form-control">
+                    </div>
+                  </div>
+                  {% for i in compteur %}    
+                  <input type="hidden" value="{{ i }}" id="p{{ i }}">
+                  <div class="col-md-6 section_produit{{ i }}">
+                      <div class="form-floating">
+                          <label for="id_prod{{ i }}">Désignation</label>
+                          <select name="id_prod{{ i }}" id="id_prod{{ i }}" class="form-select col-md-12" placeholder="">
+                              <option value=""></option>
+                              {% for art in articles %}
+                              <option value="{{ art.id }}" data-qte_stock="{{ art.qte }}" data-unite_msr="{{ art.unitmsr }}">{{ art.designation }}</option>
+                              {% endfor %}
+                          </select>
+                          <input type="hidden" name="qte_prod{{ i }}" id="qte_prod{{ i }}">
+                          <input type="hidden" name="pv_prod{{ i }}" id="pv_prod{{ i }}">
+                          <i class="alert text-success info_qte{{ i }}"></i>
+                      </div>
+                  </div>
+                  <div class="col-md-6 section_qte{{ i }}">
+                      <div class="form-floating">
+                          <label for="qte_ven{{ i }}">Nombre</label>
+                          <input type="text" id="qte_ven{{ i }}" class="form-control" name="qte_ven{{ i }}" placeholder="" autocomplete="off" >
+                          <input type="hidden" name="ex_qte_ven{{ i }}" id="ex_qte_ven{{ i }}">
+                          <input type="hidden" name="ligne_ven{{ i }}" id="ligne_ven{{ i }}">
+                          <input type="hidden" name="num_ven" id="num_ven">
+                      </div>
+                  </div>
+                  {% endfor %}
+                  </div>
+                  <div class="col-md-6">
+                      <button type="button" class="btn btn-primary" id="ajouter-vente"><i class="fas fa-plus"></i></button>
+                      <button type="button" data-bs-toggle="modal" id="enregvente" class="btn btn-primary">Enregistrer</button>
+                      <button type="reset" class="btn btn-danger">Reset</button>
+                  </div>
+                  
+                  <div class="text-center">
+                    
+                  </div>
+                </form>
+                
+              </div>
+              <!-- /.card-body -->
+            </div>
+           </form>
+        </div>
+        <!-- /.col -->
+        <div class="col-md-4">
+          <div class="info-box mb-3 bg-white">
+            <div class="info-box-content">
+              <span class="info-box-text">Prévisualisation du bon de commande</b> </span>
+              <table class="table table-striped" style="font-size:10px;">
+                <thead>
+                  <tr>
+                      <th colspan="5">
+                          <span id="nom_ven_tab">Fournisseur : ORDINAIRE</span>
+                          <p id="date_ven_tab">Date   :</p>
+                          <h6 id="fact_ven_tab">Bon N° : .............. / 2024 </h6>
+                          <script>$("#date_ven_tab").text("Date   : Le "+new Date().toLocaleDateString());</script>
+                      </th>
+                  </tr>
+                  <tr>
+                      <th>N°</th>
+                      <th>Désignation</th>
+                      <th>Nbre</th>
+                      <th>PU</th>
+                      <th>PT</th>
+                  </tr>
+                  </thead>
+                  <tbody class="forme-facture">
+  
+                  </tbody>
+                  <tr>
+                      <th colspan="4">TOTAL</th>
+                      <th id="tot">0</th>
+                  </tr>
+                </table> 
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <!-- /.row -->
+    </div><!--/. container-fluid -->
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+{% include 'riviera/formulaires/modal.html' %}
+
+<!--  ----------------------------------------------------------------------------------------------  -->
+<!--  DEBUT DU DESIGN DE LIGNE DE COMMANDES  -->
+<!--  ----------------------------------------------------------------------------------------------  -->
+<script>
+  $(document).ready(function () {
+      for (let i = 2; i <=20; i++) {
+          $(".section_produit"+i).hide();
+          $(".section_qte"+i).hide();
+      }
+  });
+
+  $("#ajouter-vente").on("click", function () {
+    var min=2000
+
+    // ici je trouve le minimum des controls cashés
+    for (let i = 1; i <=20; i++){
+        if($(".section_produit"+i).is(":hidden") && parseInt($("#p"+i).val())<min){
+            min=parseInt($("#p"+i).val());
+        }
+    }
+    var qte_txt = $("#id_prod"+(min-1)+" option:selected").data("qte_stock")+" "+$("#id_prod"+(min-1)+" option:selected").data("unite_msr")
+    if(parseFloat($("#qte_ven"+(min-1)).val()) > parseFloat($("#id_prod"+(min-1)+" option:selected").data("qte_stock"))){
+      toastr.error("La quantité demandée n'est pas disponible. Il ne reste que "+qte_txt+ " en stock.")
+      $("#qte_ven"+(min-1)).css("background-color","red");
+      $("#qte_ven"+(min-1)).css("color","none");
+    }
+    else if (parseFloat($("#qte_ven"+(min-1)).val())==0){
+      toastr.error("La quantité demandée doit être supérieur à Zéro")
+      $("#qte_ven"+(min-1)).css("background-color","yellow");
+      $("#qte_ven"+(min-1)).css("color","white");
+    }
+    else{
+      $("#qte_ven"+(min-1)).css("background-color","white");
+      $("#qte_ven"+(min-1)).css("color","black");
+
+      if($.trim($("#qte_ven"+(min-1)).val()).length>0 && $.trim($("#id_prod"+(min-1)).val()).length>0){
+        $(".section_produit"+min).show();
+        $(".section_qte"+min).show();
+        add_tab(min-1)
+      }else{
+        toastr.error("La Quantité ou le champs produit ne peuvent pas être vide.")
+      }
+    }
+  });
+
+i=0;
+function add_tab(id){
+    i+=1;
+    var id_prod = $("#id_prod"+id).val();
+    var qte_ven = parseFloat( $("#qte_ven"+id).val());
+    var pu = parseFloat($("#prix_unit"+id).val());
+    var pt = qte_ven*pu;
+    
+    pt =Math.round(pt*100)/100
+    var ligne = `
+    <tr>
+        <td id="id">${i}</td>
+        <td id="prod">${$("#id_prod"+id+" option:selected").text()}</td>
+        <td id="qte">${qte_ven}</td>
+        <td id="pu">${Math.round(pu*100)/100}</td>
+        <td id="pt">${pt}</td>
+    </tr>
+    `
+    tot = parseFloat($("#tot").text())+pt
+    $("#tot").text(tot)
+    $(".forme-facture").append(ligne)
+}
+
+</script>
+
+<!--    -->
+<script>
+for (let i = 1; i <= 20; i++) {
+  $("#id_prod"+i).on("change", function () {
+    
+    $("#qte_prod"+i).val($("#id_prod"+i+" option:selected").data("qte"))
+    $("#pv_prod"+i).val($("#id_prod"+i+" option:selected").data("pu"))
+});
+}
+</script>
+  
+<script>
+for(let i=0;i<=20;i++){
+  $(".section_produit"+i).on("change", function(){
+    $(".info_qte"+i).text("Quantité disponible: "+$("#id_prod"+i+" option:selected").data("qte_stock")+" "+$("#id_prod"+i+" option:selected").data("unite_msr"));
+  })
+}
+</script>
+<!--  ----------------------------------------------------------------------------------------------  -->
+<!--  FIN DU DESIGN DE LIGNE DE COMMANDES  -->
+<!--  ----------------------------------------------------------------------------------------------  -->
+
+
+
+
+
+
+
+
+
+<script>
+  $("#btn_edit_fact").click(function(){
+    $("#vente_m").css("display","block")
+  })
+</script>
+{% comment %} SELECT2  {% endcomment %}
+<script>
+$(document).ready(function() {
+  $('.form-select').select2();
+  $('#nationalite1').select2();
+  $('#nationalite').select2();
+});
+
+$("input[data-bootstrap-switch]").each(function(){
+  $(this).bootstrapSwitch('state', $(this).prop('checked'));
+})
+
+</script>
+{% comment %} DETECT DEVICE  {% endcomment %}
+<script>
+function detectDeviceType() {
+  const userAgent = navigator.userAgent;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+}
+if(detectDeviceType()==="Mobile"){
+  $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+}
+</script>
+
+{% comment %} ENREGISTREMENT COMMANDE ACHAT {% endcomment %}
+<script>
+$("#enregvente").click((e)=>{
+  e.preventDefault();    
+  if($("#remarque").val() !=='' && $("#id_prod1").val() !=='' && $("#qte_ven1").val() !=='' && $("#prix_unit1").val() !==''){
+    var formVente = new FormData();
+    formVente.append('remarque', $("#remarque").val());
+     
+    for (let i = 1; i <=20; i++) {
+      formVente.append('id_prod'+i, $("#id_prod"+i).val());
+      formVente.append('qte_ven'+i, $("#qte_ven"+i).val());
+    }    
+    
+    formVente.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+  $.ajax({
+    type: 'POST',
+    url: "{% url 'demande_stock_url' %}",
+    data: formVente,
+    processData:false,
+    contentType:false,   
+    success: function(data){
+      toastr.info("Votre commande au stock a été envoyée avec succès");
+      $(".form-control").val("")
+      $(".form-select").val("")
+    },
+    error: function(err) {
+      toastr.error("Echec d'enregistrement de la commande")
+    }
+  });
+  }else{
+      toastr.error("Quelques champs obligatoires sont vides")
+  }
+})
+
+</script>

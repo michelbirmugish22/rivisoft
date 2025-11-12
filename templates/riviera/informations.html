@@ -1,0 +1,182 @@
+{% extends 'riviera/bases/template.html' %}
+{% load static %}
+
+{% block content %}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="card card-secondary">
+        <form action="" method="get">  
+        <div class="card-body row">
+          <div class="form-group col-3">
+            <select class="form-control form-control-lg" name="empl_category">
+              <option value="all">Tous</option>
+              <optgroup label="Par service">
+                {% for emp in services %}
+                  <option value="S{{ emp.id }}" {% if id_emp == emp.id and category == 'S' %} selected {% endif %}>Serv. {{ emp.designation }}</option>
+                {% endfor %}
+              </optgroup>
+              <optgroup label="Par département">
+                {% for emp in departements %}
+                  <option value="D{{ emp.id }}" {% if id_emp == emp.id and category == 'D' %} selected {% endif %}>Dép. {{ emp.designation }}</option>
+                {% endfor %}
+              </optgroup>
+              <optgroup label="Individuel">
+                {% for emp in employes %}
+                  <option value="{{ emp.id }}" {% if id_emp == emp.id  and category == 'E' %} selected {% endif %}>{{ emp.nom }}</option>
+                {% endfor %}
+              </optgroup>
+            </select> 
+          </div>
+          <div class="form-group col-2">
+            <select class="form-control form-control-lg" name="mois">
+              <option value="1" {% if mois_actuel == 1 %} selected {% endif %}>Janvier</option>
+              <option value="2" {% if mois_actuel == 2 %} selected {% endif %}>Février</option>
+              <option value="3" {% if mois_actuel == 3 %} selected {% endif %}>Mars</option>
+              <option value="4" {% if mois_actuel == 4 %} selected {% endif %}>Avril</option>
+              <option value="5" {% if mois_actuel == 5 %} selected {% endif %}>Mai</option>
+              <option value="6" {% if mois_actuel == 6 %} selected {% endif %}>Juin</option>
+              <option value="7" {% if mois_actuel == 7 %} selected {% endif %}>Juillet</option>
+              <option value="8" {% if mois_actuel == 8 %} selected {% endif %}>Août</option>
+              <option value="9" {% if mois_actuel == 9 %} selected {% endif %}>Septembre</option>
+              <option value="10" {% if mois_actuel == 10 %} selected {% endif %}>Octobre</option>
+              <option value="11" {% if mois_actuel == 11 %} selected {% endif %}>Novembre</option>
+              <option value="12" {% if mois_actuel == 12 %} selected {% endif %}>Décembre</option>
+            </select>
+          </div>
+          <div class="from-group col-2">
+            <select class="form-control form-control-lg" name="annee">
+              {% for annee in annees %}
+              <option value="{{ annee }}" {% if annee_actuelle == annee %} selected {% endif %}>{{ annee }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group col-5">
+            <button type="submit" class="btn btn-outline-primary btn-lg" id="btn-bulletin">Bulletins</button>
+            {% comment %} <button type="button" class="btn btn-outline-primary btn-lg" id="btn-bulletin">Avances</button>
+            <button type="button" class="btn btn-outline-primary btn-lg" id="btn-bulletin">Prêts</button>
+            <button type="button" class="btn btn-outline-primary btn-lg" id="btn-bulletin">Bulletins</button> {% endcomment %}
+          </div>
+        </div>
+      </form>   
+      </div>
+      <div class="card p-2">
+        <div class="table-responsive p-0" style="height: 550px;">
+          <form action="" method="post">
+            {% csrf_token %}
+          <table class="table table-bordered table-striped table-head-fixed text-nowrap">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Noms & Postnoms</th>
+                <th>Catégorie</th>
+                <th>Fonction</th>
+                <th>Période</th>
+                <th>NbJour</th>
+                <th>GAINS</th>
+                <th>RETENUS</th>
+                <th>NET A PAYER</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- This block of code is a Django template loop that iterates over a list of
+              `remunerations` objects. For each `remun` object in the `remunerations` list, it
+              generates an HTML table row (`<tr>`) with various columns containing information about
+              the remuneration. -->
+              {% for remun in remunerations %}
+              <tr {% if remun.paid == 1  %} class="text text-warning text-decoration-underline" {% endif %}>
+                <td id="id_rem">{{ remun.id }}</td>
+                <td>{{ remun.employe.nom }} {{ remun.employe.postnom }}</td>
+                <td>{{ remun.employe.categorie.code }}</td>
+                <td>{{ remun.employe.fonction }}</td>
+                <td>{{ remun.mois }}/{{ remun.annee }}</td>
+                <td>{{ remun.joursprestes }}</td> 
+                <td>{{ remun.salbrut|add:remun.sal_jrs_maladie|add:remun.sal_jrs_maladie|add:remun.sal_heure_supp|add:remun.prime|add:remun.transport|add:remun.communication|add:remun.logement|add:remun.allocation_fam|add:remun.sal_anciennete }}</td>
+                <td>{{ remun.ipr|add:remun.cnss|add:remun.avancesursal }}</td>
+                <td>{{ remun.netapayer|floatformat:2 }}</td>
+                <td>
+                  <a href="#" class="btn btn-{% if remun.paid == 1 %}warning{% else %}primary  {% endif %} btn-sm btn_more_info"> <i class="fas fa-pen-alt"></i></a>
+                  <a {% if remun.paid == 1 %} href="#" class="btn btn-warning btn-sm" {% else %}  href="{% url 'bulletin_paie' id_emp=remun.employe.id mois=remun.mois annee=remun.annee %}" class="btn btn-primary btn-sm"  {% endif %}> <i class="fas fa-cash-register"></i></a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </form>
+        </div>
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  {% include 'riviera/formulaires/modal.html' %}
+  <script>
+    $(".btn_more_info").click(function(e){
+      id = $(e.currentTarget).closest('tr').find('#id_rem').text().trim();
+      var form = new FormData();
+      form.append("id_rem", parseInt(id));
+      form.append("csrfmiddlewaretoken",$("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+        type:'post',
+        url:"{% url 'informations' %}",
+        data:form,
+        processData:false,
+        contentType:false,
+        success:function(res){
+          remuneration = res.remuneration
+          toastr.info(remuneration.noms + " Trouvé")
+          corps = "<table class=\"table table-bordered table-responsive\">";
+          $("#modal-default").modal({backdrop:'static'})
+          $(".modal-dialog").addClass("modal-lg")
+
+          corps += `<tr><th>ID</th><td>${remuneration.id}</td><th>Période</th><td>${remuneration.periode}</td></tr>`;
+          corps += `<tr><th>Noms et Postnom</th><td>${remuneration.noms}</td><th>Nombre des jours payables</th><td>${30}</td></tr>`;
+          corps += `<tr><th>Fonction</th><td>${remuneration.fonction}</td><th>Nombre des jours préstés</th><td>${remuneration.joursprestes}</td></tr>`;
+          corps += `<tr><th>Categorie</th><td>${remuneration.categorie}</td><th>Jours de maladie</th><td>${remuneration.joursmaladie}</td></tr>`;
+          corps += `<tr><th>Salaire de Base</th><td>${remuneration.salbase}</td><th>Heures supplémentaires</th><td>${remuneration.heure_supp}</td></tr>`;
+          corps += `<tr><td colspan=4></td></tr>`;
+          corps += `<tr><th colspan=2>1. LES GAINS</th><th colspan=2>2. LES RETENUS</th></tr>`;
+          corps += `<tr><th>Salaire jrs de maladie</th><td>${remuneration.sal_jrs_maladie}</td><th>IPR</th><td>${remuneration.ipr}</td></tr>`;
+          corps += `<tr><th>Salaires des heure sup.</th><td>${remuneration.sal_heure_supp}</td><th>CNSS</th><td>${remuneration.cnss}</td></tr>`;
+          corps += `<tr><th>Primes</th><td>${remuneration.prime}</td><th>ONEM</th><td>${remuneration.onem}</td></tr>`;
+          corps += `<tr><th>Transport</th><td>${remuneration.transport}</td><th>INPP</th><td>${remuneration.inpp}</td></tr>`;
+          corps += `<tr><th>Communication</th><td>${remuneration.communication}</td><th>Rétenus absences : </th><td>${0}</td></tr>`;
+          corps += `<tr><th>Logement</th><td>${remuneration.logement}</td><th>Prêt</th><td>${remuneration.pret}</td></tr>`;
+          corps += `<tr><th>Allocations familliales</th><td>${remuneration.allocation_fam}</td><th>Avance sur salaire</th><td>${remuneration.avancesursal}</td></tr>`;
+          corps += `<tr><th>Ancienneté</th><td>${remuneration.sal_anciennete}</td></tr>`;
+          corps += `<tr><th colspan=2>NET A PAYER</th><th colspan=2>${remuneration.netapayer}</th></tr>`;
+          corps += "</table>";
+
+          $("#modal-default").modal({backdrop:'static'});
+          $(".modal-header").html("Informations sur le salaire");
+          $(".modal-body").html(corps);
+        }
+      })
+    })
+  </script>
+  {% endblock content %} 
+
+  
+      
+      
+    

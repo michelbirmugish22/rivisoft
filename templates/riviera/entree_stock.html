@@ -1,0 +1,182 @@
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-12">
+          <h1 class="m-0">{{ titre }}</h1>
+        </div><!-- /.col -->
+        <div class="col-sm-12">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+            <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+
+      <div class="row g-2">
+        <div class="col-md-8">
+            <div class="card">
+              <div id="reponse-form"></div>
+              <div class="card-body">
+                <form method="post" class="row g-3" id="form-entre-stock">
+                  {% csrf_token %}
+                  <div class="col-md-12">
+                    <div class="form-floating">
+                      <label for="id_ca">Sélectionnez un bon de commande</label>
+                      <select name="id_ca" id="id_ca" class="form-select col-md-12" required>
+                        <option value=""></option>
+                          {% for ca in commandes %} 
+                            <option value="{{ ca.id }}" {% if ca.etat == 'TERMINE' %} disabled {% endif %}>{{ ca.datea }}  $({{ ca.total }}) - {{ ca.fournisseur.nom }} {{ ca.fournisseur.postnom }} <span class="text-success">{{ ca.etat }}</span> </option>
+                          {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <br>
+                  <div class="col-md-6">
+                      <button type="submit" class="btn btn-primary">Valider l'entrée en stock</button>
+                      <button type="reset" class="btn btn-danger">Reset</button>
+                  </div>
+                </form>
+              </div>
+              <!-- /.card-body -->
+            </div>
+        </div>
+        <!-- /.col -->
+        <div class="col-md-4">
+          <div class="info-box mb-3 bg-white" id="prev-panel" style="display:none">
+            <div class="info-box-content">
+              <span class="info-box-text">Prévisualisation de la commande</b> </span>
+              <table class="table table-striped" style="font-size:10px;">
+                <thead>
+                  <tr>
+                      <th>N°</th>
+                      <th>Désignation menu</th>
+                      <th>Nbre</th>
+                      <th>PU</th>
+                      <th>PT</th>
+                  </tr>
+                  </thead>
+                  <tbody id="forme-facture">
+  
+                  </tbody>
+                  <tr>
+                      <th colspan="4">TOTAL TTC</th>
+                      <th id="tot">0</th>
+                  </tr>
+                </table>
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+        </div>
+      </div>
+      <!-- /.row -->
+    </div><!--/. container-fluid -->
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+{% include 'riviera/formulaires/modal.html' %}
+
+{% comment %} La Prévisualisation de la commande  {% endcomment %}
+<script>
+  $("#id_ca").change(function(e){
+    var form = new FormData();
+    form.append('id_ca',parseInt($("#id_ca").val()));
+    form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+    $.ajax({
+      type:'post',
+      url:"{% url 'entree_stock' %}",
+      data:form,
+      processData:false,
+      contentType:false,
+      success:function(res){
+        $("#prev-panel").css('display','block');
+        $("#forme-facture").html("");
+        var tot = 0.0; 
+        var i=1;
+        $.each(res.lignes.obj, function(key, value){
+          $.ajax({
+            type:'get',
+            url:"{% url 'edit_article' %}",
+            data:{id:value.article},
+            success:function(res){
+              $("#forme-facture").append(`<tr>
+                <td id="id">${i}</td>
+                <td id="prod">${ res.article.designation }</td>
+                <td id="qte">${value.qte}</td>
+                <td id="pu">${value.prix}</td>
+                <td id="pt">${(value.prix*value.qte).toFixed(2)}</td>
+            </tr>`);
+            i+=1;
+            }
+          })
+          tot += value.prix*value.qte;
+          
+        });
+        $("#tot").text(tot.toFixed(2));
+        
+      },
+      error:function(err){
+        toastr.error(err)
+      }
+    })
+   
+  })
+</script>
+
+<script>
+$("#form-entre-stock").submit((e)=>{
+  e.preventDefault();
+  var form = new FormData();
+  form.append('id_ca',parseInt($("#id_ca").val()));
+  form.append('csrfmiddlewaretoken',$('[name=csrfmiddlewaretoken]').val());
+  $.ajax({
+    type:'post',
+    url:"{% url 'entree_stock_url' %}",
+    data:form,
+    processData:false,
+    contentType:false,
+    success:function(res){
+      toastr.info("Effectué");
+    },
+    error:function(err){
+      toastr.error(err)
+    }
+  })
+})
+</script>
+
+
+
+
+
+
+<script>
+$(document).ready(function() {
+  $('.form-select').select2();
+});
+
+$("input[data-bootstrap-switch]").each(function(){
+  $(this).bootstrapSwitch('state', $(this).prop('checked'));
+})
+
+</script>
+{% comment %} DETECT DEVICE  {% endcomment %}
+<script>
+function detectDeviceType() {
+  const userAgent = navigator.userAgent;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+}
+if(detectDeviceType()==="Mobile"){
+  $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+}
+</script>

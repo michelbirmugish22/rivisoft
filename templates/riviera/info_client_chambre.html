@@ -1,0 +1,99 @@
+{% extends 'riviera/bases/template.html' %}
+{%load static%}
+
+{% block content %}  
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row mt-4">
+          <nav class="w-100">
+            <div class="nav nav-tabs" id="info-tab" role="tablist">
+              <a class="nav-item nav-link active" id="info-gen-tab" data-toggle="tab" href="#info-gen" role="tab" aria-controls="product-desc" aria-selected="true">INFOS GENERALES</a>
+              <a class="nav-item nav-link" id="info-restau-tab" data-toggle="tab" href="#info-restau" role="tab" aria-controls="product-comments" aria-selected="false">RESTAURANT</a>
+              <a class="nav-item nav-link" id="info-bar-tab" data-toggle="tab" href="#info-bar" role="tab" aria-controls="product-rating" aria-selected="false">BAR</a>
+              <a class="nav-item nav-link" id="info-piscine-tab" data-toggle="tab" href="#info-piscine" role="tab" aria-controls="product-rating" aria-selected="false">PISCINE & GYM</a>
+              <a class="nav-item nav-link" id="info-boite-tab" data-toggle="tab" href="#info-boite" role="tab" aria-controls="product-rating" aria-selected="false">BOITE</a>
+              <a class="nav-item nav-link" id="info-buanderie-tab" data-toggle="tab" href="#info-buanderie" role="tab" aria-controls="product-rating" aria-selected="false">BUANDERIE</a>
+            </div>
+          </nav>
+          <div class="tab-content p-3" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="info-gen" role="tabpanel" aria-labelledby="info-gen-tab">
+              <div class="card bg-light d-flex flex-fill">
+                <div class="card-header text-muted border-bottom-0">
+                </div>
+                <div class="card-body pt-0">
+                  <div class="row">
+                    <div class="col-12">
+                      <h2 class="lead"><b>{{ checkin.client.nom }} {{ checkin.client.postnom }}</b></h2>
+                      <p class="text-sm"><b>Profession: </b> #{{ checkin.client.profession }}</p>
+                      <p class=" text-sm">
+                        <b>Chambre: </b> #{{ checkin.chambre.numero }} / {{ checkin.chambre.categorie.designation }} <br>
+                        <b>Prix: </b> {{ checkin.prixnuitee }} $
+                      </p>
+                      <ul class="ml-4 mb-0 fa-ul">
+                        <li><span class="fa-li"><i class="fas fa-lg fa-calendar-week"></i></span>{{ checkin.datearr }} - {{ checkin.datesor }}</li>
+                        <li><span class="fa-li"><i class="fas fa-lg fa-building"></i></span> Address: {{ checkin.client.adresse_serv }}</li>
+                        <li><span class="fa-li"><i class="fas fa-lg fa-phone"></i></span> Phone #: {{ checkin.client.tel }}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table m-0">
+                  <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Désignation</th>
+                    <th>Qté</th>
+                    <th>Valeur</th>
+                    <th>Total</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>Accomodation chambre #{{ checkin.chambre.numero }}</td>
+                      <td>{{ nb_jrs }} nuitées</td>
+                      <td>{{ checkin.prixnuitee }} $</td>
+                      <td>{{ tot_valeur }} $</td>
+                    </tr>                      
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="info-restau" role="tabpanel" aria-labelledby="info-restau-tab"> Restaurant. </div>
+            <div class="tab-pane fade" id="info-bar" role="tabpanel" aria-labelledby="info-bar-tab"> Terrasse-Bar. </div>
+            <div class="tab-pane fade" id="info-piscine" role="tabpanel" aria-labelledby="info-piscine-tab"> Piscine et salle de sport. </div>
+            <div class="tab-pane fade" id="info-boite" role="tabpanel" aria-labelledby="info-boite-tab"> Boite de nuit. </div>
+            <div class="tab-pane fade" id="info-buanderie" role="tabpanel" aria-labelledby="info-buanderie-tab"> Buandérie. </div>
+          </div>
+        </div>
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% endblock content %}
+  

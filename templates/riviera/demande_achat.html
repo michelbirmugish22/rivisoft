@@ -1,0 +1,533 @@
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-12">
+          <h1 class="m-0">{{ titre }}</h1>
+          <span>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              {% for pdv in pdvs %}
+              <label for="pdv_{{ pdv.id }}" class="btn bg-olive {% if forloop.counter == 1 %} active {% endif %}">
+                  <input type="radio" name="pdv" id="pdv_{{ pdv.id }}" value="{{ pdv.id }}" autocomplete="off" {% if forloop.counter == 1 %} checked {% endif %}> {{ pdv.designation }}
+              </label>
+              {% endfor %}
+            </div>
+          </span>
+        </div><!-- /.col -->
+        <div class="col-sm-12">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+            <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+
+      <div class="row g-2">
+        {% if user.affectation == 'FIN' or user.affectation == 'GER' or user.is_staff == 1  %}
+        <div class="col-md-12">
+          <form action="" method="post">
+            <div class="card">
+              <div class="card-header">
+                <h5>VALIDER LA SORTIE DES FONDS POUR L'APPROVISIONNEMENT DU STOCK</h5>
+              </div>
+              <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                  <tr>
+                    <td>Demandeur</td>
+                    <td>Date</td>
+                    <td>NUM</td>
+                    <td>Type</td>
+                    <td>Etat</td>
+                    <td>Montant</td>
+                  </tr>
+                  
+                  {% for com in commandes %}
+                    <tr>
+                      <td>{{ com.utilisateur.username|upper }}</td>
+                      <td>{{ com.datea }}</td>
+                      <td id="id_commande">{{ com.id }}</td>
+                      <td>{{ com.typea }}</td>
+                      <td><span class="badge 
+                      {% if com.etat == 'TERMINE' %}badge-danger{% endif %}
+                      {% if com.etat == 'ENCOURS' %}badge-warning{% endif %}
+                      {% if com.etat == 'AUTHORISE1' %}badge-info{% endif %}
+                        ">{{ com.etat }}</span></td>
+                      <th>${{ com.total }}</th>
+                      <td>
+                        <a href="#" class="btn btn-sm btn-danger rejeter"><i class="fas fa-trash-restore-alt"></i></a>
+                        <a href="#" class="btn btn-sm btn-info info"><i class="fas fa-eye"></i></a>
+                        <a href="#" class="btn btn-sm btn-success approuver"><i class="fas fa-check-circle"></i></a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                    
+                </table>
+              </div>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+        {% if user.affectation == 'MAG' or user.is_staff == 1  %}
+        <div class="col-md-8">
+          <form action="" id="form-client-enregistrer">
+            {% csrf_token %}
+            <div class="card">
+              <div class="card-body">
+                <form method="post" class="row g-3" id="form-vente">
+                  <div class="row div-ligne-vente">
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <label for="mode">Mode de réglément</label>
+                      <select name="mode" id="mode" class="form-control" required>
+                        <option value="CASH" selected>Au comptant</option>
+                        <option value="CREDIT">A crédit</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating">
+                      <label for="id_client">Fournisseur</label>
+                      <select name="id_client" id="id_client" class="form-select col-md-12" placeholder="" required>
+                          {% for fss in fournisseurs %}
+                            <option value="{{ fss.id }}">{{ fss.nom }} {{ fss.postnom }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  {% for i in compteur %}    
+                  <input type="hidden" value="{{ i }}" id="p{{ i }}">
+                  <div class="col-md-6 section_produit{{ i }}">
+                      <div class="form-floating">
+                          <label for="id_prod{{ i }}">Désignation</label>
+                          <select name="id_prod{{ i }}" id="id_prod{{ i }}" class="form-select col-md-12" placeholder="">
+                              <option value=""></option>
+                              {% for art in articles %}
+                              <option value="{{ art.id }}" data-last_pachat="{{ art.last_pachat }}" data-prix="{{ art.prixu }}">{{ art.designation }}</option>
+                              {% endfor %}
+                          </select>
+                          <input type="hidden" name="qte_prod{{ i }}" id="qte_prod{{ i }}">
+                          <input type="hidden" name="pv_prod{{ i }}" id="pv_prod{{ i }}">
+                          <i class="alert text-success info_qte{{ i }}"></i>
+                      </div>
+                  </div>
+                  <div class="col-md-3 section_qte{{ i }}">
+                      <div class="form-floating">
+                          <label for="qte_ven{{ i }}">Nombre</label>
+                          <input type="text" id="qte_ven{{ i }}" class="form-control" name="qte_ven{{ i }}" placeholder="" autocomplete="off" >
+                          <input type="hidden" name="ex_qte_ven{{ i }}" id="ex_qte_ven{{ i }}">
+                          <input type="hidden" name="ligne_ven{{ i }}" id="ligne_ven{{ i }}">
+                          <input type="hidden" name="num_ven" id="num_ven">
+                      </div>
+                  </div>
+                  <div class="col-md-3 section_qte{{ i }}">
+                    <div class="form-floating">
+                        <label for="qte_ven{{ i }}">Prix unitaire</label>
+                        <input type="number" step="0.01" id="prix_unit{{ i }}" class="form-control" name="prix_unit{{ i }}" placeholder="" autocomplete="off" >
+                    </div>
+                </div>
+                  {% endfor %}
+                  </div>
+                  <div class="col-md-6">
+                      <button type="button" class="btn btn-primary" id="ajouter-vente"><i class="fas fa-plus"></i></button>
+                      <button type="button" data-bs-toggle="modal" id="enregvente" class="btn btn-primary">Enregistrer</button>
+                      <button type="reset" class="btn btn-danger">Reset</button>
+                  </div>
+                  
+                  <div class="text-center">
+                    
+                  </div>
+                </form>
+                
+              </div>
+              <!-- /.card-body -->
+            </div>
+           </form>
+        </div>
+        <!-- /.col -->
+        <div class="col-md-4">
+          <div class="info-box mb-3 bg-white">
+            <div class="info-box-content">
+              <span class="info-box-text">Prévisualisation du bon de commande</b> </span>
+              <table class="table table-striped" style="font-size:10px;">
+                <thead>
+                  <tr>
+                      <th colspan="5">
+                          <span id="nom_ven_tab">Fournisseur : ORDINAIRE</span>
+                          <p id="date_ven_tab">Date   :</p>
+                          <h6 id="fact_ven_tab">Bon N° : .............. / 2024 </h6>
+                          <script>$("#date_ven_tab").text("Date   : Le "+new Date().toLocaleDateString());</script>
+                      </th>
+                  </tr>
+                  <tr>
+                      <th>N°</th>
+                      <th>Désignation</th>
+                      <th>Nbre</th>
+                      <th>PU</th>
+                      <th>PT</th>
+                  </tr>
+                  </thead>
+                  <tbody class="forme-facture">
+  
+                  </tbody>
+                  <tr>
+                      <th colspan="4">TOTAL</th>
+                      <th id="tot">0</th>
+                  </tr>
+                </table> 
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <!-- /.row -->
+    </div><!--/. container-fluid -->
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+{% include 'riviera/formulaires/modal.html' %}
+<!--  ----------------------------------------------------------------------------------------------  -->
+<!--  VALIDATION DE COMMANDES  -->
+<!--  ----------------------------------------------------------------------------------------------  -->
+<script>
+  var id_ca;
+  $(".info").click((e)=>{
+    id_ca = parseInt($(e.currentTarget).closest('tr').find('#id_commande').text().trim());
+    var boite_info = `
+    <table class="table table-bordered">
+                <thead>
+                  <tr>
+                      <th>N°</th>
+                      <th>Désignation</th>
+                      <th>Nbre</th>
+                      <th>PU</th>
+                      <th>PT</th>
+                  </tr>
+                  </thead>
+                  <tbody id="forme-facture2">
+  
+                  </tbody>
+                  <tr>
+                      <th colspan="4">TOTAL A DECAISSER (en $ USD)</th>
+                      <th id="tot2">0</th>
+                  </tr>
+            </table>
+    `;
+    $("#modal-default").modal({backdrop:'static'});
+    $(".modal-header").html("INFOS SUR LA COMMANDE NUMERO "+id_ca);
+    $(".modal-body").html(boite_info);
+    $(".modal-footer").html("");
+    $(".modal-footer").html(`<div></div>`);
+    $(".modal-footer").append(`<button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>`);
+
+    var form = new FormData();
+    form.append('id_ca',id_ca);
+    form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+    $.ajax({
+      type:'post',
+      url:"{% url 'entree_stock' %}",
+      data:form,
+      processData:false,
+      contentType:false,
+      success:function(res){
+        $("#prev-panel").css('display','block');
+        $("#forme-facture2").html("");
+        var tot = 0.0; 
+        var i=1;
+        $.each(res.lignes.obj, function(key, value){
+          $.ajax({
+            type:'get',
+            url:"{% url 'edit_article' %}",
+            data:{id:value.article},
+            success:function(res){
+              $("#forme-facture2").append(`<tr>
+                <td id="id">${i}</td>
+                <td id="prod">${ res.article.designation }</td>
+                <td id="qte">${value.qte}</td>
+                <td id="pu">${value.prix}</td>
+                <td id="pt">${(value.prix*value.qte).toFixed(2)}</td>
+            </tr>`);
+            i+=1;
+            }
+          })
+          tot += value.prix*value.qte;
+          
+        });
+        $("#tot2").text(tot.toFixed(2));
+        
+      },
+      error:function(err){
+        toastr.error(err)
+      }
+    }) 
+  })
+  var div_operat;
+  $(".approuver").click((e)=>{
+    id_ca = parseInt($(e.currentTarget).closest('tr').find('#id_commande').text().trim());
+    div_operat = `
+    <form method="post" active="mgfdyee" id="form-valider-achat">
+      {% csrf_token %}
+      <div class="form-group col-md-12">
+        <select class="form-control" id="operateur2">
+          {% for oper in operateurs %}
+          <option value="{{ oper.id }}">{{ oper.designation }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group col-md-3">
+        <button type="button" class="btn btn-primary" id="btn-valider-achat">Valider</button>
+      </div>
+    </form>
+    `;
+    $("#modal-default").modal({backdrop:'static'});
+    $(".modal-header").html("CHOISISEZ UN COMPTE A CREDITER "+id_ca);
+    $(".modal-body").html(div_operat);
+    $(".modal-footer").html("");
+    $(".modal-footer").html(`<div></div>`);
+    $(".modal-footer").append(`<button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>`);
+
+    $("#btn-valider-achat").click((e)=>{
+      e.preventDefault();
+      var form = new FormData();
+      form.append('id_ca',id_ca);
+      form.append('operateur',$("#operateur2").val());
+      form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+        type:'post',
+        url:"{% url 'authoriser_commande_achat' %}",
+        data:form,
+        processData:false,
+        contentType:false,
+        success:function(res){
+          $("#modal-default").modal('hide');
+          toastr.info("effectuée");
+        }
+      });
+    });
+  });
+
+
+</script>
+
+
+
+
+<!--  ----------------------------------------------------------------------------------------------  -->
+<!--  DEBUT DU DESIGN DE LIGNE DE COMMANDES  -->
+<!--  ----------------------------------------------------------------------------------------------  -->
+<script>
+  $(document).ready(function () {
+      for (let i = 2; i <=20; i++) {
+          $(".section_produit"+i).hide();
+          $(".section_qte"+i).hide();
+      }
+  });
+
+  $("#ajouter-vente").on("click", function () {
+    var min=2000
+
+    // ici je trouve le minimum des controls cashés
+    for (let i = 1; i <=20; i++){
+        if($(".section_produit"+i).is(":hidden") && parseInt($("#p"+i).val())<min){
+            min=parseInt($("#p"+i).val());
+        }
+    }
+    if(parseFloat($("#qte_ven"+(min-1)).val()) > parseFloat($("#qte_prod"+(min-1)).val())){
+      $(".msg_info").text("La qté demandé n'est pas disponible. Il ne reste que "+$("#qte_prod"+(min-1)).val()+ " pièces en stock.")
+      $(".msg_title").text("Stock insuffisant")
+      $("#message_modal").modal("show")
+      $("#qte_ven"+(min-1)).css("background-color","red");
+      $("#qte_ven"+(min-1)).css("color","white");
+    }
+    else{
+      $("#qte_ven"+(min-1)).css("background-color","white");
+      $("#qte_ven"+(min-1)).css("color","black");
+
+      if($.trim($("#qte_ven"+(min-1)).val()).length>0 && $.trim($("#id_prod"+(min-1)).val()).length>0){
+        $(".section_produit"+min).show();
+        $(".section_qte"+min).show();
+        add_tab(min-1)
+      }else{
+        toastr.error("La Quantité ou le champs produit ne peuvent pas être vide.")
+      }
+    }
+  });
+
+i=0;
+function add_tab(id){
+    i+=1;
+    var id_prod = $("#id_prod"+id).val();
+    var qte_ven = parseFloat( $("#qte_ven"+id).val());
+    var pu = parseFloat($("#prix_unit"+id).val());
+    var pt = qte_ven*pu;
+    
+    pt =Math.round(pt*100)/100
+    var ligne = `
+    <tr>
+        <td id="id">${i}</td>
+        <td id="prod">${$("#id_prod"+id+" option:selected").text()}</td>
+        <td id="qte">${qte_ven}</td>
+        <td id="pu">${Math.round(pu*100)/100}</td>
+        <td id="pt">${pt}</td>
+    </tr>
+    `
+    tot = parseFloat($("#tot").text())+pt
+    $("#tot").text(tot)
+    $(".forme-facture").append(ligne)
+}
+
+
+//Quand on sélectionne le client et la date
+$("#id_client").on("change", function () {
+    $("#nom_ven_tab").text("Client : "+$("#id_client option:selected").text())
+});
+$("#mode").on("change", function () {
+    $("#date_ven_tab").text("Date : "+$("#mode").val())
+});
+</script>
+
+<script>
+$(".enre").on("click", function (e) {
+    e.preventDefault()
+    alert("OK")
+});
+</script>
+
+<!--    -->
+<script>
+for (let i = 1; i <= 20; i++) {
+  $("#id_prod"+i).on("change", function () {
+    
+    $("#qte_prod"+i).val($("#id_prod"+i+" option:selected").data("qte"))
+    $("#pv_prod"+i).val($("#id_prod"+i+" option:selected").data("pu"))
+});
+}
+</script>
+  
+<script>
+for(let i=0;i<=20;i++){
+  $(".section_produit"+i).on("change", function(){
+    $(".info_qte"+i).text("Prix en stock: "+$("#id_prod"+i+" option:selected").data("prix")+" USD");
+    $("#prix_unit"+i).val(parseFloat($("#id_prod"+i+" option:selected").data("last_pachat").replace(",",".")))
+  })
+}
+</script>
+<!--  ----------------------------------------------------------------------------------------------  -->
+<!--  FIN DU DESIGN DE LIGNE DE COMMANDES  -->
+<!--  ----------------------------------------------------------------------------------------------  -->
+
+
+
+
+
+
+
+
+
+<script>
+  $("#btn_edit_fact").click(function(){
+    $("#vente_m").css("display","block")
+  })
+</script>
+{% comment %} SELECT2  {% endcomment %}
+<script>
+$(document).ready(function() {
+  $('.form-select').select2();
+  $('#nationalite1').select2();
+  $('#nationalite').select2();
+});
+
+$("input[data-bootstrap-switch]").each(function(){
+  $(this).bootstrapSwitch('state', $(this).prop('checked'));
+})
+
+</script>
+{% comment %} DETECT DEVICE  {% endcomment %}
+<script>
+function detectDeviceType() {
+  const userAgent = navigator.userAgent;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+}
+if(detectDeviceType()==="Mobile"){
+  $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+}
+</script>
+
+{% comment %} ENREGISTREMENT COMMANDE ACHAT {% endcomment %}
+<script>
+$("#enregvente").click((e)=>{
+  e.preventDefault();    
+  if($("#mode").val() !=='' && $("#id_client").val() !=='' && $("#id_prod1").val() !=='' && $("#qte_ven1").val() !=='' && $("#prix_unit1").val() !==''){
+    var formVente = new FormData();
+    formVente.append('mode', $("#mode").val());
+    formVente.append('id_client', $("#id_client").val());
+     
+    for (let i = 1; i <=20; i++) {
+      formVente.append('id_prod'+i, $("#id_prod"+i).val());
+      formVente.append('qte_ven'+i, $("#qte_ven"+i).val());
+      formVente.append('prix_unit'+i, $("#prix_unit"+i).val());
+    }    
+    
+    formVente.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+  $.ajax({
+    type: 'POST',
+    url: "{% url 'demande_achat_url' %}",
+    data: formVente,
+    processData:false,
+    contentType:false,   
+    success: function(data){
+      toastr.info("Commande des achats effectuée avec succès")
+      ajouterLigneTableau()
+    },
+    error: function(err) {
+      toastr.error("Echec d'enregistrement de la commande")
+    }
+  });
+  }else{
+      toastr.error("Quelques champs obligatoires sont vides")
+  }
+})
+
+function ajouterLigneTableau(){
+  $.ajax({
+    type:'get',
+    url:"{% url 'load_commande_fact' %}",
+    success:function(data){
+      var comm_area ='';
+      i=0;
+      $.each(data.commandes.obj, function(key, value){
+        if (value.total){
+        comm_area += `
+        <tr>
+          <td id="id_com" >`+value.id+`</td>
+          <td>2024-06`+value.id+`</td>
+          <td>`+value.datev+`</td>
+          <td>`+value.total+`</td>
+          <td>
+            <button class="btn btn-danger btn-sm btn_evoid_fact">annuler</button>
+            <button class="btn btn-secondary btn-sm btn_edit_fact">modifier</button>
+            <button class="btn btn-primary btn-sm btn_print_fact">imprimer</button>
+          </td>
+        </tr>
+        `;}
+      });
+      $("#data_clients").prepend(comm_area);
+    },
+    error:function(err){
+      alert(error)
+    }
+  })
+}
+
+</script>

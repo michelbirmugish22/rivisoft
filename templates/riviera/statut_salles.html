@@ -1,0 +1,275 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-11">
+            <input type="hidden" id="input_id_chambre_support">
+            <form action="{% url 'save_bloc' %}" method="post" id="form-chambre">
+              {% csrf_token %}
+                    <div class="card card-secondary">
+                      <!-- /.card-header -->
+                      <div class="card-body">
+                        <div class="row">
+                          
+                          {% for s in salles %}
+                          <div class="col-md-4 col-6">
+                            <!-- small box -->
+                            <div id="couleur_statut_chambre-{{ cha.id }}" class="small-box  
+                            {% if s.is_occupied == 1 %} 
+                              bg-info
+                              {% elif s.is_occupied == 0 %}
+                              bg-success
+                              {% elif s.is_booked == 1 %}
+                              bg-danger
+                              {% elif s.is_booked == 1 %}
+                              bg-primary
+                              {% endif %}
+                            "> 
+                              <div class="inner sm-1">
+                                <h4>{{ s.designation }}</h4>
+                                <span>{{ s.numero }}</span>
+                              </div>
+                              <div class="icon">
+                                <i class="ion ion-bag"></i>
+                              </div>
+                              <a href="#" class="small-box-footer dropdown-{{ cha.id }}" data-toggle="dropdown">
+                                {% if s.is_occupied == 1 %}
+                                  {{ cha.checkin.client.nom|slice:8 }} {{ cha.checkin.client.postnom|slice:6 }}
+                                  <input type="hidden" id="id_checkin_{{ s.id }}" value="{{ ck.id }}">
+                                {% endif %}
+                                <input type="hidden" id="room_id{{ cha.id }}" value="{{ cha.id }}">
+                                <i class="fas fa-arrow-circle-{% if cha.statut == 'Occupee' %}right {% else %}down {% endif %}"></i>
+                              </a>
+                              <div class="dropdown-menu" role="menu">
+                                {% if user.affectation == 'REC' or user.affectation == 'ADM' or user.affectation == 'GER' or user.is_staff == 1  %}
+                               
+                                <a class="dropdown-item deposit_form-{{ s.id }}" href="#">Paiement / Deposit</a>
+                                <a class="dropdown-item checkout_form-{{ s.id }}" href="#">Réglement / Checkout</a>
+                                <a class="dropdown-item rsv_form-{{ s.id }}" href="#">Reserver la salle</a>
+
+                                {% endif %}
+                                <div class="dropdown-divider"></div>
+                                {% if cha.statut != 'Occupee' %}
+                                <a class="dropdown-item infos_state" href="#">Infos sur l'état</a>
+                                {% if user.affectation == 'HKP' or user.affectation == 'INF' or user.affectation == 'GER' or user.is_staff == 1  %}
+                                <a class="dropdown-item change_state" href="#" id="">Changer état</a>
+                                {% endif %}
+                                <a class="dropdown-item" href="#">Dernière occupation</a>
+                                {% endif %}
+                                {% if cha.statut == 'Occupee' %}
+                                <a class="dropdown-item" href="#">Infos </a>
+                                <a class="dropdown-item" href="#">Bilan</a>
+                                {% endif %}
+                                <a class="dropdown-item" href="#">Situation</a>
+                              </div>
+                            </div>
+                          </div>
+                          <script>
+                            $(".rsv_form-{{ s.id }}").click(function(e){
+                              id_salle = {{ s.id|safe }}
+                              $.ajax({
+                                url:"{% url 'rsv_salle_form' %}",
+                                data:{id_salle:id_salle},
+                                type:'GET',
+                                success:function(response){
+                                  $("#contenu-page").html(response);
+                                },
+                              })
+                            })
+                          </script>
+                          <script>
+                            $(".checkout_form-{{ cha.id }}").click(function(e){
+                              id_ci = {{ cha.checkin.id|safe }}
+                              $.ajax({
+                                url:"{% url 'checkout_form' %}",
+                                data:{id_ci:id_ci},
+                                type:'GET',
+                                success:function(response){
+                                  $("#contenu-page").html(response);
+                                },
+                              })
+                            })
+                          </script>
+                          <script>
+                            //Quand on clique sur change statut d'une chambre, on envoie son id vers l'input_id_chambre_support
+                            $(".dropdown-{{ cha.id }}").click(function(){
+                              let num = parseInt("{{ cha.id }}");
+                              $("#input_id_chambre_support").val(num);
+                            });
+                          </script>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      <!-- /.card-body -->
+                    </div>
+             </form>
+          </div>
+          <!-- /.col -->
+          <div class="card col-md-1">
+            <div class="row md-12">
+              <h6 class="p-2">Légende</h6>
+              <div class="bg-info col-md-12  p-2">Occupée-{{ nb_oc }}  ({{ tx_oc }}%) </div>
+              <div class="bg-success col-md-12 p-2">Libre-{{ nb_lb }}  ({{ tx_lb }}%)</div>
+              <div class="bg-danger col-md-12  p-2">Hors service-{{ nb_hs }}  ({{ tx_hs }}%)</div>
+              <div class="bg-warning col-md-12 p-2">Sale-{{ nb_sl }}  ({{ tx_sl }}%)</div>
+              <div class="bg-secondary col-md-12 p-2">Bloquée-{{ nb_bl }}  ({{ tx_bl }}%)</div>
+              <div class="bg-primary col-md-12 p-2">Réservée-{{ nb_rsv }}  ({{ tx_rsv }}%)</div>
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+
+
+{% include 'riviera/formulaires/modal.html' %}
+
+
+
+<script>
+  $("#form_change_state").css("display","none");
+  // CHANGER ETAT 
+  $(".change_state").click(function(){
+    id_cha = parseInt($("#input_id_chambre_support").val())
+    $("#modal-default").modal({backdrop:'static'});
+    $(".modal-header").html("Changer l'état de la chambre n°"+id_cha);
+    $("#form_change_state").css("display","block"); //On display le formulaire cashé au chargement de la page
+    $(".modal-body").html($("#form_change_state"));
+
+    $("#raison_state_div").css('display','none');
+    $("#room_state").change(function(){
+      if($("#room_state").val()=="S" || $("#room_state").val()=="N"){
+        $("#raison_state_div").css('display','none')
+      }else{
+        $("#raison_state_div").css('display','block')
+      }
+    });
+    $("#modal-continuer").click(function(e){
+      e.preventDefault();
+      var form = new FormData();
+      form.append("room_id",id_cha);
+      form.append("statut_chambre",false);
+      form.append("room_state",$("#room_state").val());
+      if($("#room_state").val()=="B" || $("#room_state").val()=="H" || $("#room_state").val()=="R"){
+        form.append("statut_chambre",true);
+        form.append("raison_state",$("#raison_state").val());
+        form.append("echeance_state",$("#echeance_state").val());
+      }
+      form.append("csrfmiddlewaretoken",$("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+        type:'post',
+        url:"{% url 'change_status_chambre' %}",
+        data:form,
+        processData:false,
+        contentType:false,
+        success:function(res){
+          $("#modal-default").modal('hide');
+          $("#couleur_statut_chambre-"+id_cha).removeClass("bg-warning");
+          $("#couleur_statut_chambre-"+id_cha).removeClass("bg-success");
+          $("#couleur_statut_chambre-"+id_cha).removeClass("bg-secondary");
+          $("#couleur_statut_chambre-"+id_cha).removeClass("bg-danger");
+          if(res.statut=="S")
+              $("#couleur_statut_chambre-"+id_cha).addClass("bg-warning")
+          if(res.statut=="N")
+              $("#couleur_statut_chambre-"+id_cha).addClass("bg-success")
+          if(res.statut=="B")
+              $("#couleur_statut_chambre-"+id_cha).addClass("bg-secondary")
+          if(res.statut=="H")
+              $("#couleur_statut_chambre-"+id_cha).addClass("bg-danger")
+          if(res.statut=="R")
+              $("#couleur_statut_chambre-"+id_cha).addClass("bg-primary")
+          toastr.info(res.msg);
+        },
+        error:function(s,xhr, err){
+          toastr.danger(err);
+        }
+      })
+    })
+  })
+</script>
+
+
+
+<script>
+  $("#form_change_state").css("display","none");
+  // CHANGER ETAT 
+  $(".infos_state").click(function(){
+    id_cha = parseInt($("#input_id_chambre_support").val())
+    $("#modal-default").modal({backdrop:'static'});
+    $(".modal-header").html("Changer l'état de la chambre n°"+id_cha);
+    $.ajax({
+      type:'GET',
+      url:"{% url 'change_status_chambre' %}",
+      data:{room_id:id_cha},
+      success:function(res){
+        var div = `
+       <div class="col-12 row">
+        <label class="form-label col-4" for="">Numéro :</label>
+        <div class="col-8 form-control">`+res.infos_status.num_chambre+`</div>
+        <label class="form-label col-4" for="">Statut :</label>
+        <div class="col-8 form-control">`+res.infos_status.statut+`</div>
+        <label class="form-label col-4" for="">Raison :</label>
+        <div class="col-8 form-control">`+res.infos_status.raison+`</div>
+        <label class="form-label col-4" for="">Echéance :</label>
+        <div class="col-8 form-control">`+res.infos_status.echeance+`</div>
+      </div>
+        `;
+        $(".modal-body").html(div);
+      },
+      error:function(err){
+        toastr.danger(err)
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+<form action="" method="post" id="form_change_state">
+  <label for="form-label">Etat de la chambre</label>
+  <select class="form-control" id="room_state">
+    <option value="N">Netoyée</option>
+    <option value="S">Sale</option>
+    <option value="B">Bloquée</option>
+    <option value="H">Hors service</option>
+    <option value="R">Réservée</option>
+  </select>
+  <div id="raison_state_div">
+    <label for="form-label">Raison</label>
+    <input type="text" id="raison_state" class="form-control">
+    <label for="form-label">Echéance</label>
+    <input type="date" id="echeance_state" class="form-control">
+  </div>
+</form>

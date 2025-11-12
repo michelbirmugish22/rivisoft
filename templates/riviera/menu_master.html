@@ -1,0 +1,143 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-9">
+            <form action="{% url 'save_menu' %}" method="post" id="form-1" enctype="multipart/form-datta">
+              {% csrf_token %}
+                    <div class="card card-secondary">
+                      <div class="card-header">
+                        <h3 class="card-title">Ajouter, Modifier ou Supprimer un Menu</h3>
+                      </div>
+                      <!-- /.card-header -->
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="form-group col-md-6">
+                            <label for="exampleInputBorder">Désignation</label>
+                            <input type="text" class="form-control" id="designation" autocomplete="off" placeholder=".ex : Saucisson frites ...">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="exampleInputBorder">Prix</label>
+                            <input type="number" class="form-control" id="prix" autocomplete="off" placeholder=".ex: 20.5">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="etage">Type</label>
+                            <select name="" id="typem" class="form-control">
+                                <option value="Nourriture"selected>Nourriture</option>                  
+                                <option value="Boisson">Boisson</option>                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="exampleInputBorder">Date d'expiration</label>
+                            <input type="date" class="form-control" id="datefin">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="groupe">Groupe</label>
+                            <select name="" id="groupe" class="form-control">
+                                <option selected disabled>sélectionnez un groupe</option>
+                                {% for grp in groupes %}
+                                  <option value="{{grp.id}}">{{grp.designation}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="exampleInputBorder">Image*</label>
+                            <input type="file" class="form-control" id="urlimage" autocomplete="off">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="exampleInputBorder">Commentaire*</label>
+                            <textarea name="" class="form-control" id="commentaire" autocomplete="off"></textarea>
+                          </div>
+                          <div class="form-group col-md-6">
+                            <img src="#" alt="" id="image_preview" style="width: 80px; height: 70px;display: none;">
+                          </div>
+                          
+                        </div>
+                        <div class="row">
+                          <button type="submit" class="btn btn-primary col-md-2" id="btn-send">Créer un menu</button>
+                          <div class="col-md-3"></div>
+                          <div class=" row col-md-7">
+                            <select name="" id="select-form1" class="form-control form-control-border col-md-5">
+                                <option selected disabled>sélectionnez un menu</option>
+                                {% for menu in menus %}
+                                  <option value="{{menu.id}}">{{menu.designation}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                            <button type="button" class="btn btn-outline-danger col-md-3 m-1" id="btn-form1-supprimer">Supprimerd</button>
+                            <button type="button" class="btn btn-outline-primary col-md-3 m-1" id="btn-form1-modifier">Modifier</button>
+                          </div>
+                        </div>
+
+                      </div>
+                      <!-- /.card-body -->
+                    </div>
+              </form>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+          <div class="card col-md-3">
+            <div class="card-header"><h5>Groupes des Menus</h5></div>
+            <div class="card-body">
+              <form action="" id="form-2">
+                <div class="form-group">
+                  <label for="exampleInputBorder">Désignation <code> Catégorie</code></label>
+                  <input type="text" class="form-control" id="des_groupe">
+                </div>
+                
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary mr-1" id="btn-excel">Enregistrer</button> <br> <br>
+                  <div class=" row ">
+                    <select name="" id="select-form2" class="form-control form-control-border">
+                        <option selected disabled>sélectionnez une catégorie</option>
+                        {% for groupe in groupes %}
+                          <option value="{{groupe.id}}">{{groupe.designation}}</option>
+                        {% endfor %}                                  
+                    </select> 
+                    <button type="button" class="btn btn-outline-danger" id="btn-form2-supprimer">Supprimer</button>
+                    <button type="button" class="btn btn-outline-primary" id="btn-form2-modifier">Modifier</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <script>
+    var today = new Date();
+    today.setDate(today.getDate() + 3652); //Dix ans après donc +365jrs * 10
+      var dixans_apres = today.toISOString().split('T')[0];
+      $('#datefin').val(dixans_apres);
+  </script>
+
+{% include 'riviera/formulaires/modal.html' %}
+{% include 'riviera/bases/CrudAjax/menu_master.html' %}

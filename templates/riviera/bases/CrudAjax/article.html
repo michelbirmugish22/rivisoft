@@ -1,0 +1,292 @@
+<script>
+// Enregistrer catégorie
+$("#form-1").submit((e) => {
+  e.preventDefault();
+  if ($("#designation").val() !== null && $("#prix").val() !== null && $("#unitmsr").val() !== null && $("#qte").val() !== null && $("#groupe").val() !== null) {
+      var formData = new FormData();
+      formData.append('designation', $("#designation").val());
+      formData.append('prix', $("#prix").val());
+      formData.append('unitmsr', $("#unitmsr").val());
+      formData.append('qte', $("#qte").val());
+      formData.append('groupe', $("#groupe").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'save_article' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              $("#unitmsr").val("PC");
+              var tab = `<option value="" selected disabled>sélectionnez un article</option>`;
+              $.each(data.articles.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form1").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+});
+
+
+  //Selection catégorie
+  $("#select-form1").change(function(){
+    $.ajax({
+      method:'get',
+      url:"{% url 'edit_article' %}",
+      data:{
+        'id':$("#select-form1").val(),
+      },
+      success:(function(data){
+        $("#designation").val(data.article.designation);
+        $("#prix").val(data.article.prixu);
+        $("#qte").val(data.article.qte);
+        $("#unitmsr").val(data.article.unitmsr);
+        $("#groupe").val(data.article.groupe);
+      })
+    })
+  })
+
+  //Modifier Catégorie
+  $("#btn-form1-modifier").click((e)=>{   
+    if ($("#designation").val() !== null && $("#prix").val() !== null && $("#unitmsr").val() !== null && $("#qte").val() !== null && $("#groupe").val() !== null) {
+    var formData = new FormData();
+      formData.append('id', $("#select-form1").val());
+      formData.append('designation', $("#designation").val());
+      formData.append('prix', $("#prix").val());
+      formData.append('unitmsr', $("#unitmsr").val());
+      formData.append('qte', $("#qte").val());
+      formData.append('groupe', $("#groupe").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'edit_article' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+            toastr.success(data.msg);
+            $(".form-control").val("");
+            $("#unitmsr").val("PC");
+            var tab = `<option value="" selected disabled>sélectionnez un article</option>`;
+            $.each(data.articles.obj, function (key, value) {
+                tab += `<option value="${value.id}">${value.designation}</option>`;
+            });
+            $("#select-form1").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+  })
+
+  //Supprimer catégorie
+$("#btn-form1-supprimer").click(function(){
+    if($("#select-form1").val()=== null){
+      toastr.error("Vous devez d'abord sélectionner un produit.")
+    }else{
+      $("#modal-default").modal('show')
+      $(".modal-title").html("Suppression Menu")
+      $(".modal-body").html("Vous êtes sur le point de supprimer le produit "+$("#designation").val()+" du stock ? Toutes les opérations effectuées sur ce produit disparaîtrons du logiciel. Pensez tout d'abord à imprimer les rapports enfin de les concerver en dur. <br><br>Voulez-vous continuer avec cette suppression ?")
+    }
+
+    $("#modal-continuer").click(function(){
+      form = new FormData();
+      form.append('id',$("#select-form1").val());
+      form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'delete_article' %}",
+      data: form,
+      processData:false,
+      contentType:false,
+      success:function(data){
+        $("#modal-default").modal('hide');
+        toastr.info(data.msg)
+      },
+      error: function(err) {
+        toastr.info(err)
+      }
+    });
+  });
+  });
+
+
+
+
+
+
+
+
+//================================================== CHAMBRES =================================
+// Enregistrer catégorie
+$("#form-2").submit((e)=>{
+  e.preventDefault();    
+  if($("#des_groupe").val() !==null){
+    form = new FormData();
+    form.append('designation',$("#des_groupe").val());
+    form.append('id_stock',$("#stock_groupe").val());
+    form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+  $.ajax({
+    type: 'post',
+    url: "{% url 'save_groupe_article' %}",
+    data:form,
+    processData:false,
+    contentType:false,
+    success: function(data){
+      $("#des_groupe").val("");
+      var tab = `<option value="" selected disabled>sélectionnez un groupe d'article</option>`;
+      $.each(data.groupes.obj, function (key, value) {
+        tab += `<option value="${value.id}">${value.designation}</option>`;
+      });
+      $("#select-form2").html(tab);
+      toastr.info(data.msg);
+    },
+    error: function(err) {
+      toastr.error(err.statusText)
+    }
+  });
+  }else{
+      toastr.error("Quelques champs obligatoires sont vides")
+  }
+})
+
+//Selection catégorie
+$("#select-form2").change(function(){
+  $.ajax({
+    method:'get',
+    url:"{% url 'edit_groupe_article' %}",
+    data:{
+      'id':$("#select-form2").val(),
+    },
+    success:(function(data){
+      $("#des_groupe").val(data.groupes.designation);
+      $("#stock_groupe").val(data.groupes.stock);
+    })
+  })
+})
+
+//Modifier Catégorie
+$("#btn-form2-modifier").click((e)=>{   
+  e.preventDefault();    
+  if($("#des_groupe").val() !== null){
+    form = new FormData();
+    form.append('id',$("#select-form2").val());
+    form.append('designation',$("#des_groupe").val());
+    form.append('id_stock',$("#stock_groupe").val());
+    form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+  $.ajax({
+    type: 'post',
+    url: "{% url 'edit_groupe_article' %}",
+    data: form,
+    processData:false,
+    contentType:false,
+    success: function(data){
+      toastr.info(data.msg)
+    },
+    error: function(err) {
+      console.log(err);
+    }
+  });
+  }else{
+    toastr.error('Quelques champs obligatoires sont vides')
+  }
+})
+
+
+//Suppression form2
+$("#btn-form2-supprimer").click(function(){
+  if($("#select-form2").val()=== null){
+    toastr.error("Vous devez d'abord sélectionner un groupe d'article ?.")
+  }else{
+    $("#modal-default").modal('show')
+    $(".modal-title").html("Suppression un Groupe d'article")
+    $(".modal-body").html("Vous êtes sur le point de supprimer le groupe d'article "+$("#des_groupe").val()+" ?  Tous les produits liés par celui-ci seront également supprimé. Pensez tout d'abord à imprimer les rapports enfin de les concerver en dur. <br><br>Voulez-vous continuer avec cette suppression ?")
+  }
+
+  $("#modal-continuer").click(function(){
+    form = new FormData();
+    form.append('id',$("#select-form2").val());
+    form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+  $.ajax({
+    type: 'POST',
+    url: "{% url 'delete_groupe_article' %}",
+    data: form,
+    processData:false,
+    contentType:false,
+    success:function(data){
+      $("#modal-default").modal('hide');
+      toastr.info(data.msg)
+    },
+    error: function(err) {
+      toastr.info(err)
+    }
+  });
+});
+});
+
+
+
+
+
+
+function parametre_suc(nom_model='',nom_select='', obj_msg, obj_model){
+    $(".form-control").val("");
+    toastr.info(obj_msg);
+    var tab = `<option value="" selected disabled>sélectionnez `+nom_model+`</option>`;
+    $.each(obj_model, function(key, value){
+      tab += `<option value="`+value.id+`">`+value.designation+`</option>`;
+    });
+    $("#select-"+nom_select).html(tab);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//SELECT2 ET BOOTSTRAP SWITCH
+  $(document).ready(function() {
+    $('.form-select').select2();
+    $('#select-bloc').select2();
+  });
+
+  $("input[data-bootstrap-switch]").each(function(){
+    $(this).bootstrapSwitch('state', $(this).prop('checked'));
+  })
+
+
+//DETECT DEVICE
+
+  function detectDeviceType() {
+    const userAgent = navigator.userAgent;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+  }
+  if(detectDeviceType()==="Mobile"){
+    $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+  }
+</script>

@@ -1,0 +1,257 @@
+<script>
+// Enregistrer catégorie
+$("#form-1").submit((e) => {
+  e.preventDefault();
+  if ($("#designation").val() !== null) {
+      var formData = new FormData();
+      formData.append('designation', $("#designation").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'save_arevenu' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              var tab = `<option value="" selected disabled>sélectionnez un Point de vente</option>`;
+              $.each(data.arevenus.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form1").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+});
+
+
+  //Selection catégorie
+  $("#select-form1").change(function(){
+    $.ajax({
+      method:'get',
+      url:"{% url 'edit_arevenu' %}",
+      data:{
+        'id':$("#select-form1").val(),
+      },
+      success:(function(data){
+        $("#designation").val(data.arevenu.designation);
+      })
+    })
+  })
+
+  //Modifier pdv
+  $("#btn-ar-modifier").click((e)=>{   
+    if ($("#designation").val() !== null) {
+      var formData = new FormData();
+      formData.append('id', $("#select-form1").val());
+      formData.append('designation', $("#designation").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'edit_arevenu' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              var tab = `<option value="" selected disabled>sélectionnez un Point de vente</option>`;
+              $.each(data.arevenus.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form1").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+  })
+
+  //Supprimer catégorie
+$("#btn-ar-supprimer").click(function(){
+    if($("#select-form1").val()=== null){
+      toastr.error("Vous devez d'abord sélectionner un révenu.")
+    }else{
+      $("#modal-default").modal('show')
+      $(".modal-title").html("Suppression Révenu")
+      $(".modal-body").html("Vous êtes sur le point de supprimer le révenu <b>"+$("#designation").val()+"</b> Toutes les opérations effectuées sur ce révenu disparaîtrons du logiciel. Pensez tout d'abord à faire une sauvegarde enfin d'éviter tout sinistre. <br><br>Voulez-vous continuer avec cette suppression ?")
+    }
+    supprimer_arevenu();
+  });
+  
+function supprimer_arevenu(){
+  $("#modal-continuer").click(function(){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'delete_arevenu' %}",
+      data: {
+        id: $("#select-form1").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success:function(data){
+        $("#modal-default").modal('hide');
+        toastr.error(data.msg);
+        var tab = `<option value="" selected disabled>sélectionnez un révenu</option>`;
+        $.each(data.arevenus.obj, function (key, value) {
+            tab += `<option value="${value.id}">${value.designation}</option>`;
+        });
+        $("#select-form1").html(tab);
+      },
+      error:function(err){
+        alert("Erreur survenu :"+ err.statusText)
+        console.log(err.statusText)
+      }
+    })
+  })
+}
+
+
+//----------------------------------------
+
+$("#form-2").submit((e) => {
+  e.preventDefault();
+  if ($("#designation2").val() !== null) {
+      var formData = new FormData();
+      formData.append('designation', $("#designation2").val());
+      formData.append('prix', $("#prix").val());
+      formData.append('autrerevenu', $("#autrerevenu").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'save_atarif' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              var tab = `<option value="" selected disabled>sélectionnez un tarif</option>`;
+              $.each(data.tarifs.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form2").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+});
+
+
+  //Selection catégorie
+  $("#select-form2").change(function(){
+    $.ajax({
+      method:'get',
+      url:"{% url 'edit_atarif' %}",
+      data:{
+        'id':$("#select-form2").val(),
+      },
+      success:(function(data){
+        $("#designation2").val(data.tarif.designation);
+        $("#prix").val(data.tarif.prix);
+        $("#autrerevenu").val(data.tarif.autrerevenu);
+      })
+    })
+  })
+
+  //Modifier pdv
+  $("#btn-ar-modifier2").click((e)=>{   
+    if ($("#designation2").val() !== null) {
+      var formData = new FormData();
+      formData.append('id', $("#select-form2").val());
+      formData.append('designation', $("#designation2").val());
+      formData.append('prix', $("#prix").val());
+      formData.append('autrerevenu', $("#autrerevenu").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'edit_atarif' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+            toastr.success(data.msg);
+            $(".form-control").val("");
+            var tab = `<option value="" selected disabled>sélectionnez un tarif</option>`;
+            $.each(data.tarifs.obj, function (key, value) {
+                tab += `<option value="${value.id}">${value.designation}</option>`;
+            });
+            $("#select-form2").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+  })
+
+  //Supprimer catégorie
+$("#btn-ar-supprimer2").click(function(){
+    if($("#select-form2").val()=== null){
+      toastr.error("Vous devez d'abord sélectionner un tarif.")
+    }else{
+      $("#modal-default").modal('show')
+      $(".modal-title").html("Suppression Tarif")
+      $(".modal-body").html("Vous êtes sur le point de supprimer le tarif <b>"+$("#designation2").val()+"</b> Toutes les opérations effectuées sur lui seront également supprimées ...<br><br>Voulez-vous continuer avec cette suppression ?")
+    }
+    supprimer_tarif();
+  });
+  
+function supprimer_tarif(){
+  $("#modal-continuer").click(function(){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'delete_atarif' %}",
+      data: {
+        id: $("#select-form2").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success:function(data){
+        $("#modal-default").modal('hide');
+        toastr.error(data.msg)
+        var tab = `<option value="" selected disabled>sélectionnez un tarif</option>`;
+        $.each(data.tarifs.obj, function (key, value) {
+            tab += `<option value="${value.id}">${value.designation}</option>`;
+        });
+        $("#select-form2").html(tab);
+      },
+      error:function(err){
+        alert("Erreur survenu :"+ err.statusText)
+        console.log(err.statusText)
+      }
+    })
+  })
+}
+
+
+
+//DETECT DEVICE
+
+  function detectDeviceType() {
+    const userAgent = navigator.userAgent;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+  }
+  if(detectDeviceType()==="Mobile"){
+    $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+  }
+</script>

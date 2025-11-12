@@ -1,0 +1,113 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row g-2">
+          <div class="col-md-6">
+            <form  method="post" id="form-1">
+              {% csrf_token %}
+                <div class="card card-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">AUTRES REVENUES</h3>
+                  </div>
+                  <div class="card-body row">
+                    <div class="form-group col-md-12">
+                      <label for="exampleInputBorder">Désignation <code> ex. Payement Extrats Boite de Nuit</code></label>
+                      <input type="text" class="form-control" id="designation">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <button type="submit" class="btn btn-primary col-10" id="ajouter">Ajout</button>
+                    </div>
+                    
+                    <div class="form-group col-md-12">
+                        <select name="" id="select-form1" class="form-control form-control-border">
+                            <option selected disabled>sélectionnez un point de vente</option>
+                            {% for rev in arevenus %}
+                            <option value="{{rev.id}}">{{rev.designation}}</option>
+                            {% endfor %}                                  
+                        </select> 
+                        <button type="button" disabled class="btn btn-outline-danger mt-2" id="btn-ar-supprimer">Supprimer</button>
+                        <button type="button" class="btn btn-outline-primary mt-2" id="btn-ar-modifier">Modifier</button>
+                    </div>
+                  </div>
+                </div>
+            </form>
+          </div>
+          <!-- /.col -->
+          <div class="col-md-6">
+            <form  method="post" id="form-2">
+              {% csrf_token %}
+                <div class="card card-secondary">
+                  <div class="card-header">
+                    <h3 class="card-title">TARIFS AUTRES REVENUES</h3>
+                  </div>
+                  <div class="card-body row">
+                    <div class="form-group col-md-12">
+                      <label for="designation2">Désignation</label>
+                      <input type="text" class="form-control" id="designation2">
+                    </div>
+                    <div class="form-group col-md-12">
+                      <label for="prix">Prix</label>
+                      <input type="number" class="form-control" id="prix">
+                    </div>
+                    <div class="form-group col-md-12">
+                      <label for="autrerevenu">Revenu associé</label>
+                      <select name="" id="autrerevenu" class="form-control form-control-border">
+                        <option selected disabled>sélectionnez un revenu</option>
+                        {% for rev in arevenus %}
+                        <option value="{{rev.id}}">{{rev.designation}}</option>
+                        {% endfor %}                                  
+                      </select> 
+                    </div>
+                    <div class="form-group col-md-6">
+                      <button type="submit" class="btn btn-primary col-10" id="ajouter">Ajout</button>
+                    </div>
+                    
+                    <div class="form-group col-md-12">
+                        <select name="" id="select-form2" class="form-control form-control-border">
+                            <option selected disabled>sélectionnez un tarif</option>
+                            {% for rev in tarifs %}
+                            <option value="{{rev.id}}">{{rev.designation}}</option>
+                            {% endfor %}                                  
+                        </select> 
+                        <button type="button" disabled class="btn btn-outline-danger mt-2" id="btn-ar-supprimer2">Supprimer</button>
+                        <button type="button" class="btn btn-outline-primary mt-2" id="btn-ar-modifier2">Modifier</button>
+                    </div>
+                  </div>
+                </div>
+            </form>
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+{% include 'riviera/formulaires/modal.html' %}
+{% include 'riviera/bases/CrudAjax/autrerevenues.html' %}

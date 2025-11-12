@@ -1,0 +1,148 @@
+{% extends 'riviera/bases/template.html' %}
+{%load static%}
+
+{% block content %}  
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row col-12 mt-4">
+          <nav class="w-100">
+            <div class="nav nav-tabs" id="rapports-tab" role="tablist">
+              <a class="nav-item nav-link active" id="rapports-gen-tab" data-toggle="tab" href="#rapports-gen" role="tab" aria-controls="product-desc" aria-selected="true">EMPLOYES</a>
+              <a class="nav-item nav-link" id="rapports-restau-tab" data-toggle="tab" href="#rapports-restau" role="tab" aria-controls="product-comments" aria-selected="false">PAYEMENTS</a>
+              <a class="nav-item nav-link" id="rapports-bar-tab" data-toggle="tab" href="#rapports-bar" role="tab" aria-controls="product-rating" aria-selected="false">AVANCES SUR SALAIRES</a>
+              <a class="nav-item nav-link" id="rapports-piscine-tab" data-toggle="tab" href="#rapports-piscine" role="tab" aria-controls="product-rating" aria-selected="false">PRETS ET DETTES</a>
+            </div>
+          </nav>
+          <div class="tab-content p-3" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="rapports-gen" role="tabpanel" aria-labelledby="rapports-gen-tab">
+              <div class="card bg-light d-flex flex-fill">
+                <div class="card-header text-muted border-bottom-0">
+                </div>
+                <div class="card-body pt-0">
+                    
+                  <div class="row">
+                    <form action="{% url 'rapports_ress_hum' %}" method="get">
+                    <div class="form-group">
+                        <select class="form-control form-control-lg" name="empl_category">
+                        <option value="all">Tous</option>
+                        <optgroup label="Par service">
+                            {% for emp in services %}
+                            <option value="S{{ emp.id }}" {% if id_emp == emp.id and category == 'S' %} selected {% endif %}>Serv. {{ emp.designation }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="Par département">
+                            {% for emp in departements %}
+                            <option value="D{{ emp.id }}" {% if id_emp == emp.id and category == 'D' %} selected {% endif %}>Dép. {{ emp.designation }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="Individuel">
+                            {% for emp in employes %}
+                            <option value="{{ emp.id }}" {% if id_emp == emp.id  and category == 'E' %} selected {% endif %}>{{ emp.nom }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        </select> 
+                    </div>
+                    <div class="form-group ml-2">
+                        <button type="submit" class="btn btn-outline-primary btn-lg" id="btn-voir"> <i class="fas fa-eye"></i> </button>
+                    </div>
+                    </form>
+                      <div class="form-group ml-2">
+                        <form action="" method="get" id="form-print">
+                            <input type="hidden" name="empl_category_hidden">
+                        <button type="submit" class="btn btn-outline-primary btn-lg" id="btn-imprimer"> <i class="fas fa-print"></i> </button>
+                        </form>
+                      </div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive p-0">
+                <table class="table table-bordered table-responsive table-striped table-head-fixed text-nowrap" id="example1">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Noms & Postnoms</th>
+                      <th>Catégorie</th>
+                      <th>Fonction</th>
+                      <th>Service</th>
+                      <th>SB</th>
+                      <th>Sexe</th>
+                      <th>Etat civil</th>
+                      <th>Enfants</th>
+                      <th>Date de naissance</th>
+                      <th>Date d'engagement</th>
+                      <th>Adresse mail</th>
+                      <th>Adrese physique</th>
+                      <th>Téléphone</th>
+                      <th>Niveau études</th>
+                      <th>Nationnalité</th>
+                      <th>Dossier</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for employe in employes %}
+                    <tr>
+                      <td>{{ employe.id }}</td>
+                      <td>{{ employe.nom }} {{ employe.postnom }}</td>
+                      <td>{{ employe.categorie.code }}</td>
+                      <td>{{ employe.fonction }}</td>
+                      <td>{{ employe.service.designation }}</td>
+                      <td>{{ employe.categorie.salbase }}</td>
+                      <td>{% if employe.sexe == 'M' %}Masculin{% else %}Féminin{% endif %}</td>
+                      <td>{% if employe.etat_civil == 'M' %}Marié(e){% elif employe.etat_civil == 'C' %}Célibataire {% elif employe.etat_civil == 'D' %}Divorcé(e) {% endif %}</td>
+                      <td>{{ employe.nb_enfant }}</td>
+                      <td>{{ employe.date_naiss }}</td>
+                      <td>{{ employe.date_engage }}</td>
+                      <td>{{ employe.mail }}</td>
+                      <td>{{ employe.adresse }}</td>
+                      <td>{{ employe.tel }}</td>
+                      <td>{{ employe.niveau_etu }}</td>
+                      <td>{{ employe.nationalite }}</td>
+                      {% comment %} <td><a href="{{ employe.dossier.url }}" target="_blank" rel="noopener noreferrer"> Télécharger</a></td> {% endcomment %}
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="rapports-restau" role="tabpanel" aria-labelledby="rapports-restau-tab"> Restaurant. </div>
+            <div class="tab-pane fade" id="rapports-bar" role="tabpanel" aria-labelledby="rapports-bar-tab"> Terrasse-Bar. </div>
+            <div class="tab-pane fade" id="rapports-piscine" role="tabpanel" aria-labelledby="rapports-piscine-tab"> Piscine et salle de sport. </div>
+            <div class="tab-pane fade" id="rapports-boite" role="tabpanel" aria-labelledby="rapports-boite-tab"> Boite de nuit. </div>
+            <div class="tab-pane fade" id="rapports-buanderie" role="tabpanel" aria-labelledby="rapports-buanderie-tab"> Buandérie. </div>
+          </div>
+        </div>
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+<script>
+    $("[name=empl_category]").change((e)=>{
+        $("#form-print").attr('action',"{% url 'rapports_ress_hum_print' %}")
+        $("[name=empl_category_hidden]").attr('value',$("[name=empl_category]").val())
+    })
+</script>
+
+  {% endblock content %}
+  

@@ -1,0 +1,543 @@
+{% load custom_filters %}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-12">
+          <h1 class="m-0">{{ titre }}</h1>
+          <span>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              {% for pdv in pdvs %}
+              <label for="pdv_{{ pdv.id }}" class="btn bg-olive {% if forloop.counter == 1 %} active {% endif %}">
+                  <input type="radio" name="pdv" id="pdv_{{ pdv.id }}" value="{{ pdv.id }}" autocomplete="off" {% if forloop.counter == 1 %} checked {% endif %}> {{ pdv.designation }}
+              </label>
+              {% endfor %}
+            </div>
+          </span>
+        </div><!-- /.col -->
+        <div class="col-sm-12">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+            <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+
+      <div class="row g-2">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <ul class="nav nav-tabs" id="custom-content-above-tab" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link btn-primary active" id="custom-content-above-home-tab" data-toggle="pill" href="#custom-content-above-home" role="tab" aria-controls="custom-content-above-home" aria-selected="true">Bon de Commande</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link btn-primary" id="custom-content-above-profile-tab" data-toggle="pill" href="#custom-content-above-profile" role="tab" aria-controls="custom-content-above-profile" aria-selected="false">Facture</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link btn-primary" id="custom-content-above-messages-tab" data-toggle="pill" href="#custom-content-above-messages" role="tab" aria-controls="custom-content-above-messages" aria-selected="false">Visualisation</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link btn-primary" id="custom-content-above-settings-tab" data-toggle="pill" href="#custom-content-above-settings" role="tab" aria-controls="custom-content-above-settings" aria-selected="false">Impression des états</a>
+                </li>
+              </ul>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+              <div class="tab-content" id="custom-content-above-tabContent">
+                <div class="tab-pane fade show active" id="custom-content-above-home" role="tabpanel" aria-labelledby="custom-content-above-home-tab">
+                   <form action="" id="form-client-enregistrer">
+                    {% csrf_token %}
+                    {% include 'riviera/formulaires/vente.html' %}
+                   </form>
+                </div>
+                <div class="tab-pane fade" id="custom-content-above-profile" role="tabpanel" aria-labelledby="custom-content-above-profile-tab">
+                  <form action="" id="form-client-modifier">
+                    {% comment %} {% csrf_token %}
+                    {% include 'riviera/formulaires/vente_m.html' %} {% endcomment %}
+                   </form>
+                   <div class="table-liste">
+                    <table class="table">
+                      <thead>
+                      <tr>
+                        <th>#ID</th>
+                        <th>Num Commande</th>
+                        <th>Date</th>
+                        <th>Montant</th>
+                        <th></th>
+                      </tr>
+                      </thead>
+                      <tbody id="data_clients">
+                      {% for facture in factures %}
+                      <tr>
+                        <td id="id_com" >{{ facture.id }}</td>
+                        <td>2024-06{{ facture.id }}</td>
+                        <td>{{ facture.datev }}</td>
+                        <td id="mnt_fact" >{{ facture.total }}</td>
+                        <td>
+                          <button class="btn btn-info btn-sm btn_payer_fact"> <i class="fa fa-check-circle"></i> </button>
+                          <button class="btn btn-danger btn-sm btn_evoid_fact"> <i class="fa fa-trash"></i> </button>
+                          {% comment %} <button class="btn btn-secondary btn-sm btn_edit_fact"><i class="fa fa-pen"></i></button> {% endcomment %}
+                          <a href="{% url 'facture_vente' facture.id %}" target="_blank" class="btn btn-primary btn-sm btn_print_fact"><i class="fa fa-print"></i></a>
+                        </td>
+                      </tr>
+                      {% endfor %} 
+                      </tbody>
+                    </table>
+                    {% comment %} <script>
+                      $(document).ready(function(){
+                        i=0
+                        setInterval(function(){
+                          $("#data_clients").html('')
+                          $.ajax({
+                            type:'get',
+                            url:"{% url 'load_commande_fact' %}",
+                            success:function(data){
+                              var comm_area ='';
+                              i=0;
+                              $.each(data.commandes.obj, function(key, value){
+                                if (value.total){
+                                comm_area += `
+                                <tr>
+                                  <td id="id_com" >`+value.id+`</td>
+                                  <td>2024-06`+value.id+`</td>
+                                  <td>`+value.datev+`</td>
+                                  <td>`+value.total+`</td>
+                                  <td>
+                                    <button class="btn btn-danger btn-sm btn_evoid_fact">annuler</button>
+                                    <button class="btn btn-secondary btn-sm btn_edit_fact">modifier</button>
+                                    <button class="btn btn-primary btn-sm btn_print_fact">imprimer</button>
+                                  </td>
+                                </tr>
+                                `;}
+                              });
+                              $("#data_clients").html(comm_area);
+                            },
+                            error:function(err){
+                              alert(error)
+                            }
+                          })
+                        },10000)
+                      })
+                    </script> {% endcomment %}
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="custom-content-above-messages" role="tabpanel" aria-labelledby="custom-content-above-messages-tab">
+                  <form action="" class="row" method="get">
+                    <div class="form-group col-5">
+                      <label for="date1" class="form-label">Date debut</label>
+                      <input type="date" name="date1" value="{{ date1|safe }}" class="form-control" id="">
+                    </div>
+                    <div class="form-group col-5">
+                      <label for="date1" class="form-label">Date fin</label>
+                      <input type="date" name="date2" value="{{ date2|safe }}"  class="form-control" id="">
+                    </div>
+                    <div class="form-group col-2">
+                      <button type="submit" class="btn btn-warning mt-4">Filtrer</button>
+                    </div>
+                  </form>
+                  {% comment %} -------------------------------------- {% endcomment %}
+                  
+                  
+                  <div class="table-responsive p-0">
+                    <table class="table table-bordered table-hover col-12">
+                      <thead>
+                        <tr>
+                          <td>ID</td>
+                          <td>Date</td>
+                          <td>Valeur</td>
+                          <td>Mode</td>
+                          <td>User</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        
+                        {% for r in reglements %}
+                        <tr data-widget="expandable-table" aria-expanded="false">
+                          <td>{{ r.id }}</td>
+                          <td>{{ r.date }}</td>
+                          <td>$ {{ r.vente.total }}</td>
+                          <td>
+                            
+                            {% if r.mode == 'CHAMBRE' %}
+                            {{ r.mode}} #{{ r.occupation.chambre.numero }}
+                            {% else %}
+                            {{ r.mode}}
+                            {% endif %}
+                          </td>
+                          <td>{{ r.utilisateur}}</td>
+                        </tr>
+
+                          <tr class="expandable-body">
+                            <td colspan="5">
+                              <div class="card">
+                                <table>
+                                  {% comment %} <tr>
+                                    <th>Produit</th>
+                                    <th>Qté</th>
+                                    <th>Valeur</th>
+                                  </tr> {% endcomment %}
+                                    {% for c in commandes %}
+                                    {% if c.commandevente_id == r.vente.id %}
+                                      <tr>
+                                        <td>{{ c.menu.designation }}</td>
+                                        <td>{{ c.qte }}</td>
+                                        <td>$ {{ c.qte|multiply:c.menu.prix }}</td>
+                                      </tr>  
+                                    {% endif %}
+                                      
+                                    {% endfor %}                          
+                                </table>
+                              </div>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+
+                    
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="custom-content-above-settings" role="tabpanel" aria-labelledby="custom-content-above-settings-tab">
+                  {{"Cette section est vide pour l'instant"}}
+                </div>
+              </div>
+              <!-- /.row -->
+            </div>
+            <!-- ./card-body -->
+            <div class="card-footer">
+                <!-- /.card-header -->
+                
+                <!-- /.card-body -->
+              
+            </div>
+            <!-- /.card-footer -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+        <div class="col-md-4">
+          <div class="info-box mb-3 bg-white">
+            <div class="info-box-content">
+              <span class="info-box-text">Prévisualisation de la commande</b> </span>
+              <table class="table table-striped" style="font-size:10px;">
+                <thead>
+                  <tr>
+                      <th colspan="5">
+                          <span id="nom_ven_tab">Client : CLIENT ORDINAIRE</span>
+                          <p id="date_ven_tab">Date   :</p>
+                          <h6 id="fact_ven_tab">Facture N° : .............. / 2024 </h6>
+                          <script>$("#date_ven_tab").text("Date   : Le "+new Date().toLocaleDateString());</script>
+                      </th>
+                  </tr>
+                  <tr>
+                      <th>N°</th>
+                      <th>Désignation menu</th>
+                      <th>Nbre</th>
+                      <th>PU</th>
+                      <th>PT</th>
+                  </tr>
+                  </thead>
+                  <tbody class="forme-facture">
+  
+                  </tbody>
+                  <tr>
+                      <th colspan="4">TOTAL TTC</th>
+                      <th id="tot">0</th>
+                  </tr>
+                </table>
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+        </div>
+      </div>
+      <!-- /.row -->
+    </div><!--/. container-fluid -->
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+{% include 'riviera/formulaires/modal.html' %}
+<script>
+  $("#btn_edit_fact").click(function(){
+    $("#vente_m").css("display","block")
+  })
+</script>
+{% comment %} SELECT2  {% endcomment %}
+<script>
+$(document).ready(function() {
+  $('.form-select').select2();
+  $('#nationalite1').select2();
+  $('#nationalite').select2();
+});
+
+$("input[data-bootstrap-switch]").each(function(){
+  $(this).bootstrapSwitch('state', $(this).prop('checked'));
+})
+
+</script>
+{% comment %} DETECT DEVICE  {% endcomment %}
+<script>
+function detectDeviceType() {
+  const userAgent = navigator.userAgent;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+}
+if(detectDeviceType()==="Mobile"){
+  $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+}
+</script>
+
+{% comment %} ENREGISTREMENT COMMANDE VENTE {% endcomment %}
+<script>
+$("#enregvente").click((e)=>{
+  e.preventDefault();    
+  if($("#date_ven").val() !=='' && $("#id_client").val() !=='' && $("#id_prod1").val() !=='' && $("#qte_ven1").val() !==''){
+    var formVente = new FormData();
+    formVente.append('date_ven', $("#date_ven").val());
+    formVente.append('id_client', $("#id_client").val());
+    formVente.append('pdv', $("[name=pdv]:checked").val());
+     
+    for (let i = 1; i <=20; i++) {
+      formVente.append('id_prod'+i, $("#id_prod"+i).val());
+      formVente.append('qte_ven'+i, $("#qte_ven"+i).val());
+    }    
+    
+    formVente.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+  $.ajax({
+    type: 'POST',
+    url: "{% url 'vente_url' %}",
+    data: formVente,
+    processData:false,
+    contentType:false,   
+    success: function(data){
+      toastr.info("Commande effectuée avec succès")
+      ajouterLigneTableau()
+    },
+    error: function(err) {
+      toastr.error("Echec d'enregistrement de la commande")
+    }
+  });
+  }else{
+      toastr.error("Quelques champs obligatoires sont vides")
+  }
+})
+
+function ajouterLigneTableau(){
+  $.ajax({
+    type:'get',
+    url:"{% url 'load_commande_fact' %}",
+    success:function(data){
+      var comm_area ='';
+      i=0;
+      $.each(data.commandes.obj, function(key, value){
+        if (value.total){
+        comm_area += `
+        <tr>
+          <td id="id_com" >`+value.id+`</td>
+          <td>2024-06`+value.id+`</td>
+          <td>`+value.datev+`</td>
+          <td>`+value.total+`</td>
+          <td>
+            <button class="btn btn-danger btn-sm btn_evoid_fact">annuler</button>
+            <button class="btn btn-secondary btn-sm btn_edit_fact">modifier</button>
+            <button class="btn btn-primary btn-sm btn_print_fact">imprimer</button>
+          </td>
+        </tr>
+        `;}
+      });
+      $("#data_clients").prepend(comm_area);
+    },
+    error:function(err){
+      alert(error)
+    }
+  })
+}
+
+</script>
+
+<script>
+  //ANNULER LA Facture
+  //Je déclare d'abord id_com comme globale 
+  var id_com;
+$(".btn_evoid_fact").click(function(){
+    $("#modal-default").modal({backdrop:'static',keyboard:false})
+    $(".modal-title").html("Annulation Facture")
+    $(".modal-body").html("Êtes-vous sûr de vouloir annuler cette facture ?")
+
+    id_com = $(this).closest('tr').find('#id_com').text().trim();
+    valider_suppression()
+
+});
+function valider_suppression(){
+  $("#modal-continuer").click(function(){
+    //ici je peux acceder à la variable id_com car elle est globale et elle contient deja la valeur
+    formData = new FormData()
+    formData.append('id_com',id_com);
+    id_com=null;
+    formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+    $.ajax({
+      type:'post',
+      url:"{% url 'annuler_facture' %}",
+      data:formData,
+      processData:false,
+      contentType:false,
+      success:function(data){
+        toastr.info("L'annulation a été éffectuée")
+        $("#modal-default").modal('hide');
+      },
+      error:function(err){
+        toastr.err("Echec d'annulation")
+      }
+    })
+  })
+}
+
+
+</script>
+
+<div id="formPayerFact">
+  <form action="" id="form-payement" method="post">
+    <div class="form-group">
+      <label for="mnt_paye" class="form-label">Somme à payer</label>
+      <input type="text" value="50 USD" disabled id="mnt_paye" class="form-control">
+    </div>
+    <div class="form-group clearfix">
+      <div class="icheck-primary d-inline">
+        <input type="radio" id="cash" value="CASH" name="mode" checked>
+        <label for="cash"> CASH RECEIPT
+        </label>
+      </div>
+      {% comment %} <div class="icheck-primary d-inline">
+        <input type="radio" id="mpesa" value="M-PESA" name="mode">
+        <label for="mpesa"> M-PESA
+        </label>
+      </div>
+      <div class="icheck-primary d-inline">
+        <input type="radio" id="airtel" value="AIRTEL" name="mode">
+        <label for="airtel"> AIRTEL MONEY
+        </label>
+      </div> {% endcomment %}
+      <div class="icheck-primary d-inline">
+        <input type="radio" id="equity" value="EQUITY" name="mode">
+        <label for="equity"> EQUITY BCDC
+        </label>
+      </div>
+      <div class="icheck-primary d-inline">
+        <input type="radio" id="chambre" value="CHAMBRE" name="mode">
+        <label for="chambre"> CLIENT EN CHAMBRE</label>
+      </div>
+      <div class="icheck-primary d-inline">
+        <input type="radio" id="debiteur" value="DEBITEUR" name="mode">
+        <label for="debiteur"> DEBITEUR DIVERS</label>
+      </div>
+    </div>
+    <div id="formPayerFooter">
+      
+    </div>
+  </form>
+  <script>
+    $("[name=mode]").change(function(){
+      var m=''; var n='';
+      if($("[name=mode]:checked").val()=='AIRTEL'){m='Entrer le numéro airtel';n='+243 9'}
+      if($("[name=mode]:checked").val()=='M-PESA'){m='Entrer le numéro Vodacom';n='+243 8'}
+      if($("[name=mode]:checked").val()=='EQUITY'){m='Entrer le numéro de compte';n=''}
+      $("#formPayerFooter").html(`
+      <div class="form-group">
+        <label for="montant" class="form-label">`+m+`</label>
+        <input type="text" id="numero_mode" value="`+n+`" class="form-control">
+      </div>
+      `)
+      if($("[name=mode]:checked").val()=='CASH'){$("#formPayerFooter").html("")}
+      if($("[name=mode]:checked").val()=='CHAMBRE'){
+      $("#formPayerFooter").html(`
+      <div class="form-group">
+        <label for="payer_chambre" class="form-label">Sélectionner un client en chambre</label>
+        <select id="payer_chambre" class="form-control select2">
+        {% for ck in checkins %}
+          <option value="{{ ck.id }}">{{ ck.chambre.numero }} [{{ ck.client.nom }} {{ ck.client.postnom }}] </option>
+        {% endfor %}
+        </select>
+      </div>
+      `)}
+      //---------------------------------- DEBITEUR
+      if($("[name=mode]:checked").val()=='DEBITEUR'){
+        $("#formPayerFooter").html(`
+        <div class="form-group">
+          <label for="payer_chambre" class="form-label">Sélectionner une organisation</label>
+          <select id="payer_chambre" class="form-control select2">
+          {% for e in entreprises %}
+            <option value="{{ e.id }}">{{ e.nom }}  [{{ e.notre_relation }}] </option>
+          {% endfor %}
+          </select>
+        </div>
+        `)}
+    })
+  </script>
+  
+</div>
+
+<script>
+  
+  //PAYER LA Facture
+  //Je déclare d'abord id_com comme globale 
+  var id_com;
+  var mnt_fact;
+  var formPayerFact = $("#formPayerFact").html();
+$(".btn_payer_fact").click(function(){
+    id_com = $(this).closest('tr').find('#id_com').text().trim();
+    mnt_fact = $(this).closest('tr').find('#mnt_fact').text().trim();
+
+    $("#modal-default .modal-dialog").addClass("modal-lg");
+    $("#modal-default").modal({backdrop:'static',keyboard:false});
+    $(".modal-title").html("Réglement Facture");
+    $(".modal-body").html(formPayerFact);
+    $("#mnt_paye").val($(this).closest('tr').find('#mnt_fact').text().trim()+" USD");
+    valider_payement()    
+});
+function valider_payement(){
+  $("#modal-continuer").click(function(){
+    //ici je peux acceder à la variable id_com car elle est globale et elle contient deja la valeur
+    formData = new FormData()
+    formData.append('id_com',id_com);
+    formData.append('mnt_fact',mnt_fact);
+    formData.append('payer_chambre',$("#payer_chambre").val());
+    formData.append('numero_mode',$("#numero_mode").val());
+    formData.append('mode',$("[name=mode]:checked").val());
+    formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+    $.ajax({
+      type:'post',
+      url:"{% url 'payer_facture_vente' %}",
+      data:formData,
+      processData:false,
+      contentType:false,
+      success:function(data){
+        toastr.info("Payement éffectué")
+        $("#modal-default").modal('hide');
+      },
+      error:function(err){
+        toastr.err("Echec. Le processus n'a pas terminé")
+      }
+    })
+  })
+}
+</script>
+<script>
+  /*$(document).ready(function() {
+      // Obtenir la date actuelle
+      let today = new Date();
+      // Formater la date en AAAA-MM-JJ
+      let formattedDate = today.toISOString().split('T')[0];
+      // Définir la date formatée comme valeur de l'input
+      $('#date_ven').val(formattedDate);
+  });*/
+</script>

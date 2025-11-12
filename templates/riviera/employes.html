@@ -1,0 +1,530 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-9">
+            <form action="{% url 'save_menu' %}" method="post" id="form-1" enctype="multipart/form-datta">
+              {% csrf_token %}
+                    <div class="card card-secondary">
+                      <!-- /.card-header -->
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="form-group col-md-4">
+                            <label for="exampleInputBorder">Nom *</label>
+                            <input type="text" class="form-control" id="nom" autocomplete="off" placeholder=" ... ">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="exampleInputBorder">Postom *</label>
+                            <input type="text" class="form-control" id="postnom" autocomplete="off" placeholder=" ... ">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="exampleInputBorder">Nombre d'enfants en charge</label>
+                            <input type="number" class="form-control" id="nb_enfant" autocomplete="off" placeholder=" ... ">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="exampleInputBorder">Numéro de téléphone</label>
+                            <input type="text" max="15" class="form-control" id="tel" autocomplete="off" placeholder=" ... ">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="exampleInputBorder">Adresse mail (unique)</label>
+                            <input type="email" class="form-control" id="mail" autocomplete="off" placeholder=" ... ">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="exampleInputBorder">Adresse de résidence</label>
+                            <input type="text" class="form-control" id="adresse" autocomplete="off" placeholder=" ... ">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="etage">Sexe *</label>
+                            <select name="" id="sexe" class="form-control">
+                                <option value=""></option>                  
+                                <option value="M">Masculin</option>                  
+                                <option value="F">Féminin</option>                  
+                                <option value="TH">Transgenre homme</option>                  
+                                <option value="TF">Transgenre femme</option>                  
+                                <option value="ND">Non déclaré</option>                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="etage">Etat civil</label>
+                            <select name="" id="etat_civil" class="form-control">
+                                <option value=""></option>                  
+                                <option value="C">Célibataire</option>                  
+                                <option value="M">Marié(e)</option>                  
+                                <option value="D">Divorcé(e)</option>                 
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="nationalite">Nationalité</label>
+                            <select name="nationalite" id="nationalite" class="form-control">
+                                {% include 'riviera/formulaires/nationalite_option.html' %}                                 
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="niveau_etu">Niveau d'études</label>
+                            <select name="niveau_etu" id="niveau_etu" class="form-control">
+                                <option value=""></option>                  
+                                <option value="0">Sans études</option>                  
+                                <option value="1">Certificat (CEP)</option>                  
+                                <option value="B0">Diplôme d'Etat</option>                  
+                                <option value="B3">Diplôme de Graduat</option>                  
+                                <option value="B5">Diplôme de Licence</option>                  
+                                <option value="B7">Diplôme de Maîtrise</option>                  
+                                <option value="D1">Doctorat</option>                   
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="fonction">Fonction *</label>
+                            <select name="fonction" id="fonction" class="form-control">
+                                <option value=""></option>                  
+                                <option value="General Manager">General Manager</option>                  
+                                <option value="Chef Cuisinier">Chef Cuisinier </option>                  
+                                <option value="HR Manager & FO Manager">HR Manager & FO Manager</option>                  
+                                <option value="Financial Manager">Financial Manager</option>                  
+                                <option value="Gouvernant(e)">Gouvernant(e)</option>                  
+                                <option value="Maitre d'hôtel">Maitre d'hôtel </option>                  
+                                <option value="Chef Pâtissier">Chef Pâtissier </option>                  
+                                <option value="Cuisinier">Cuisinier</option>                  
+                                <option value="Caissier Principal">Caissier Principal</option>                  
+                                <option value="Contrôleur de gestion">Contrôleur de gestion</option>                  
+                                <option value="Gestionnaire de stock">Gestionnaire de stock</option>                  
+                                <option value="Chargé(e) des achats">Chargé(e) des achats</option>                  
+                                <option value="Pâtissier(e)">Pâtissier(e) </option>                  
+                                <option value="Aide-cuisinier">Aide-cuisinier </option>                  
+                                <option value="Superviseur Chambre">Superviseur Chambre</option>                  
+                                <option value="Réceptionniste">Réceptionniste</option>                  
+                                <option value="Gardinien des linges">Gardinien des linges</option>                  
+                                <option value="Superviseur restaurant">Superviseur restaurant</option>                  
+                                <option value="Superviseur Bar">Superviseur Bar</option>                  
+                                <option value="IT">IT</option>                  
+                                <option value="Bagagiste">Bagagiste</option>                  
+                                <option value="Valet de chambre">Valet de chambre</option>                  
+                                <option value="Blanchisseur">Blanchisseur</option>                  
+                                <option value="Garçon de salle">Garçon de salle </option>                  
+                                <option value="Fille de salle">Fille de salle </option>                  
+                                <option value="Plongeur">Plongeur</option>                  
+                                <option value="Equipier">Equipier</option>                  
+                                <option value="Jardinier">Jardinier</option>                  
+                                <option value="Maitre nageur">Maitre nageur</option>                  
+                                <option value="Chauffeur">Chauffeur</option>                  
+                                <option value="Manutentioniste">Manutentioniste</option>                  
+                                <option value="Autre">Autre</option>                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="date_naiss">Date de naissance</label>
+                            <input type="date" class="form-control" id="date_naiss">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="date_engage">Engagé depuis la date du *</label>
+                            <input type="date" class="form-control" id="date_engage">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="categorie">Categorie *</label>
+                            <select name="" id="categorie" class="form-control">
+                                <option selected disabled>sélectionnez un groupe</option>
+                                {% for cat in categories %}
+                                  <option value="{{cat.id}}">{{cat.code}} - {{cat.designation}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="service">Service *</label>
+                            <select name="" id="service" class="form-control">
+                                <option selected disabled>sélectionnez un groupe</option>
+                                {% for serv in services %}
+                                  <option value="{{serv.id}}">{{serv.designation}} (Dép: {{serv.departement.designation}})</option>
+                                {% endfor %}                                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-12">
+                            <label for="exampleInputBorder">Téléverser son dossiers complet (en PDF de préférence)</label>
+                            <input type="file" class="form-control-file" id="dossier" autocomplete="off">
+                          </div>
+                        </div>
+                        <div class="row">
+                          <button type="submit" class="btn btn-primary col-md-2" id="btn-send">Créer un menu</button>
+                          <div class="col-md-3"></div>
+                          <div class=" row col-md-7">
+                            <select name="" id="select-form1" class="form-control form-control-border col-md-5">
+                                <option selected disabled>sélectionnez un menu</option>
+                                {% for emp in employers %}
+                                  <option value="{{emp.id}}">{{emp.nom}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                            <button type="button" class="btn btn-outline-danger col-md-3 m-1" id="btn-form1-supprimer">Supprimerd</button>
+                            <button type="button" class="btn btn-outline-primary col-md-3 m-1" id="btn-form1-modifier">Modifier</button>
+                          </div>
+                        </div>
+
+                      </div>
+                      <!-- /.card-body -->
+                    </div>
+              </form>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+          <div class="card col-md-3">
+            <div class="card-header"><h5>Catégorie des employers</h5></div>
+            <div class="card-body">
+              <form action="" id="form-2">
+                <div class="form-group">
+                  <label for="designation">Désignation</label>
+                  <input type="text" class="form-control" id="designation" autocomplete="off">
+                </div>
+                <div class="form-group">
+                  <label for="code">Code</label>
+                  <input type="text" class="form-control" id="code" autocomplete="off">
+                </div>
+                <div class="form-group">
+                  <label for="salbase">Salaire de base</label>
+                  <input type="number" step="0.01" class="form-control" id="salbase" autocomplete="off">
+                </div>
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary mr-1" id="btn-excel">Enregistrer</button> <br> <br>
+                  <div class=" row ">
+                    <select name="" id="select-form2" class="form-control form-control-border">
+                        <option selected disabled>sélectionnez une catégorie</option>
+                        {% for cat in categories %}
+                          <option value="{{cat.id}}">{{cat.code}} - {{cat.designation}}</option>
+                        {% endfor %}                                  
+                    </select> 
+                    <button type="button" class="btn btn-outline-danger" id="btn-form2-supprimer">Supprimer</button>
+                    <button type="button" class="btn btn-outline-primary" id="btn-form2-modifier">Modifier</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <script>
+    var today = new Date();
+    today.setDate(today.getDate() + 3652); //Dix ans après donc +365jrs * 10
+      var dixans_apres = today.toISOString().split('T')[0];
+      $('#datefin').val(dixans_apres);
+  </script>
+
+{% include 'riviera/formulaires/modal.html' %}
+
+<script>
+  $("#form-1").submit((e)=>{
+    e.preventDefault();
+    if ($("#nom").val() !== null && $("#postnom").val() !== null && $("#sexe").val() !== null && $("#fonction").val() !== null && $("#service").val() !== null && $("#categorie").val() !== null && $("#date_engage").val() !== null) {
+      var form = new FormData();
+      form.append("nom",$("#nom").val());
+      form.append("postnom",$("#postnom").val());
+      form.append("sexe",$("#sexe").val());
+      form.append("etat_civil",$("#etat_civil").val());
+      form.append("nb_enfant",$("#nb_enfant").val());
+      form.append("date_naiss",$("#date_naiss").val());
+      form.append("date_engage",$("#date_engage").val());
+      form.append("mail",$("#mail").val());
+      form.append("adresse",$("#adresse").val());
+      form.append("tel",$("#tel").val());
+      form.append("niveau_etu",$("#niveau_etu").val());
+      form.append("fonction",$("#fonction").val());
+      form.append("nationalite",$("#nationalite").val());
+      form.append("categorie",$("#categorie").val());
+      form.append("service",$("#service").val());
+      form.append('dossier', $("#dossier")[0].files[0]);
+      form.append("csrfmiddlewaretoken",$("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+        type:'post',
+        url:"{% url 'save_employe' %}",
+        data:form,
+        processData:false,
+        contentType:false,
+        success:function(res){
+          toastr.info(res.msg);
+        },
+        error:function(err){
+          toastr.error(err);
+        }
+      });
+    }else{
+      toastr.error("Quelques champs obligatoires (*) sont vides");
+    }
+  });
+
+
+
+  //Selection catégorie
+  $("#select-form1").change(function(){
+    $.ajax({
+      method:'get',
+      url:"{% url 'edit_employe' %}",
+      data:{
+        'id':$("#select-form1").val(),
+      },
+      success:(function(data){
+        $("#nom").val(data.employes.nom);
+        $("#postnom").val(data.employes.postnom);
+        $("#sexe").val(data.employes.sexe);
+        $("#etat_civil").val(data.employes.etat_civil);
+        $("#nb_enfant").val(data.employes.nb_enfant);
+        $("#date_naiss").val(data.employes.date_naiss);
+        $("#date_engage").val(data.employes.date_engage);
+        $("#mail").val(data.employes.mail);
+        $("#adresse").val(data.employes.adresse);
+        $("#tel").val(data.employes.tel);
+        $("#niveau_etu").val(data.employes.niveau_etu);
+        $("#fonction").val(data.employes.fonction);
+        $("#nationalite").val(data.employes.nationalite);
+        $("#categorie").val(data.employes.categorie);
+        $("#service").val(data.employes.service);
+      })
+    })
+  })
+
+  //Modifier Employé
+  $("#btn-form1-modifier").click((e)=>{   
+    if ($("#nom").val() !== null && $("#fonction").val() !== null && $("#service").val() !== null && $("#categorie").val() !== null && $("#date_engage").val() !== null) {
+      var form = new FormData();
+      form.append('id', $("#select-form1").val());
+      form.append("nom",$("#nom").val());
+      form.append("postnom",$("#postnom").val());
+      form.append("sexe",$("#sexe").val());
+      form.append("etat_civil",$("#etat_civil").val());
+      form.append("nb_enfant",$("#nb_enfant").val());
+      form.append("date_naiss",$("#date_naiss").val());
+      form.append("date_engage",$("#date_engage").val());
+      form.append("mail",$("#mail").val());
+      form.append("adresse",$("#adresse").val());
+      form.append("tel",$("#tel").val());
+      form.append("niveau_etu",$("#niveau_etu").val());
+      form.append("fonction",$("#fonction").val());
+      form.append("nationalite",$("#nationalite").val());
+      form.append("categorie",$("#categorie").val());
+      form.append("service",$("#service").val());
+      form.append('dossier', $("#dossier")[0].files[0]);
+      form.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'edit_employe' %}",
+          data: form,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              $("#nationalite").val("COD");
+              var tab = `<option value="" selected disabled>sélectionnez un Menu</option>`;
+              $.each(data.employes.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.nom} ${value.postnom}</option>`;
+              });
+              $("#select-form1").html(tab);
+              $("#image_preview").css('display','none');
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+  })
+
+  //Supprimer catégorie
+$("#btn-form1-supprimer").click(function(){
+    if($("#select-form1").val()=== null){
+      toastr.error("Vous devez d'abord sélectionner un menu.")
+    }else{
+      $("#modal-default").modal('show')
+      $(".modal-title").html("Suppression Menu")
+      $(".modal-body").html("Vous êtes sur le point de supprimer le menu "+$("#designation").val()+" ? Toutes les opérations effectuées sur ce Menu disparaîtrons du logiciel. Pensez tout d'abord à imprimer les rapports enfin de les concerver en dur. <br><br>Voulez-vous continuer avec cette suppression ?")
+    }
+  });
+  $("#modal-continuer").click(function(){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'delete_menu' %}",
+      data: {
+        id: $("#select-form1").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success:function(data){
+        $("#modal-default").modal('hide');
+        toastr.error(data.msg)
+        $("#typem").val("Nourriture")
+        var tab = `<option value="" selected disabled>sélectionnez un Menu</option>`;
+        $.each(data.menus.obj, function (key, value) {
+            tab += `<option value="${value.id}">${value.designation}</option>`;
+        });
+        $("#select-form1").html(tab);
+        $("#image_preview").css('display','none');
+      },
+      error:function(err){
+        alert("Erreur survenu :"+ err.statusText)
+        console.log(err.statusText)
+      }
+    })
+  })
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+//================================================== CHAMBRES =================================
+// Enregistrer catégorie
+$("#form-2").submit((e)=>{
+  e.preventDefault();    
+  if($("#designation").val() !==null && $("#code").val() !==null && $("#salbase").val() !==null){
+  $.ajax({
+    type: 'post',
+    url: "{% url 'save_categorie_employe' %}",
+    data: {
+      designation: $("#designation").val(),
+      code: $("#code").val(),
+      salbase: $("#salbase").val(),
+      csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+    },
+    success: function(data){
+      parametre_suc("une catégorie de l'employé", 'form2', data.msg, data.categories.obj);
+    },
+    error: function(err) {
+      console.log(err);
+      toastr.error(err.statusText)
+    }
+  });
+  }else{
+      toastr.error("Quelques champs obligatoires sont vides")
+  }
+})
+
+//Selection catégorie
+$("#select-form2").change(function(){
+  $.ajax({
+    method:'get',
+    url:"{% url 'edit_categorie_employe' %}",
+    data:{
+      'id':$("#select-form2").val(),
+    },
+    success:(function(data){
+      $("#designation").val(data.categories.designation);
+      $("#code").val(data.categories.code);
+      $("#salbase").val(data.categories.salbase);
+    })
+  })
+})
+
+//Modifier Catégorie
+$("#btn-form2-modifier").click((e)=>{   
+  e.preventDefault();    
+  if($("#designation").val() !==null && $("#code").val() !==null && $("#salbase").val() !==null){
+  $.ajax({
+    type: 'post',
+    url: "{% url 'edit_categorie_employe' %}",
+    data: {
+      id: $("#select-form2").val(),
+      designation: $("#designation").val(),
+      code: $("#code").val(),
+      salbase: $("#salbase").val(),
+      csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+    },
+    success: function(data){
+      parametre_suc("une catégorie de l'employé", 'form2',data.msg, data.categories.obj);
+    },
+    error: function(err) {
+      console.log(err);
+    }
+  });
+  }else{
+    toastr.error('Quelques champs obligatoires sont vides')
+  }
+})
+
+
+//Suppression form2
+$("#btn-form2-supprimer").click(function(){
+  if($("#select-form2").val()=== null){
+    toastr.error("Vous devez d'abord sélectionner une caégorie.")
+  }else{
+    $("#modal-default").modal('show')
+    $(".modal-title").html("Suppression de la catégorie")
+    $(".modal-body").html("Vous êtes sur le point de supprimer la catégorie "+$("#code").val()+" ?  Tous les employés liés par celui-ci seront également supprimés. Pensez tout d'abord à prendre des précautions y rélatives. <br><br>Voulez-vous continuer avec cette suppression ?")
+  }
+});
+
+$("#modal-continuer").click(function(){
+  $.ajax({
+    type: 'POST',
+    url: "{% url 'delete_categorie_employe' %}",
+    data: {
+      id: $("#select-form2").val(),
+      csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+    },
+    success:function(data){
+      $("#modal-default").modal('hide');
+      parametre_suc('une catégorie', 'form2',data.msg, data.categories.obj);
+    },
+    error: function(err) {
+      console.log(err);
+    }
+  });
+  });
+</script>
+
+
+
+<script>
+  function parametre_suc(nom_model='',nom_select='', obj_msg, obj_model){
+    $(".form-control").val("");
+    toastr.info(obj_msg);
+    var tab = `<option value="" selected disabled>sélectionnez `+nom_model+`</option>`;
+    $.each(obj_model, function(key, value){
+      tab += `<option value="`+value.id+`">`+value.designation+`</option>`;
+    });
+    $("#select-"+nom_select).html(tab);
+  }
+</script>

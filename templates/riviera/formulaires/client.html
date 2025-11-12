@@ -1,0 +1,81 @@
+  <div class="card">
+    <div id="reponse-form"></div>
+    <div class="card-body">
+      <h4>Ajouter un nouveau client</h4>
+      {% comment %} <div class="row"> {% endcomment %}
+        <div class="form-group row">
+          <label for="nom" class="col-sm-2 col-form-label">Nom</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="nom" autocomplete="off" placeholder="Nom du client">
+          </div>
+          <label for="postnom" class="col-sm-2 col-form-label">Postnom</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="postnom"  autocomplete="off" placeholder="Postnom du client">
+          </div>
+        </div>
+        <!-- /.row -->
+        <div class="form-group row">
+          <label for="profession" class="col-sm-2 col-form-label">Profession</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="profession" autocomplete="off" placeholder="ex : Homme Politique">
+          </div>
+          <label for="nationalite" class="col-sm-2 col-form-label">Nationalité</label>
+          <div class="col-sm-4">
+            <select name="nationalite"  class="form-control col-12 form-select" id="nationalite" required>
+              {% include 'riviera/formulaires/nationalite_option.html' %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="tel" class="col-sm-2 col-form-label">Téléphone</label>
+          <div class="col-sm-4">
+            <input type="tel" class="form-control" id="tel" autocomplete="off" placeholder="ex : 0993034042">
+          </div>
+          <label for="mail" class="col-sm-2 col-form-label">Mail</label>
+          <div class="col-sm-4">
+            <input type="email" class="form-control" id="mail" autocomplete="off" placeholder="ex : michelbirmugish22@gmail.com">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="adresse_serv" class="col-sm-2 col-form-label">Adresse de Service</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="adresse_serv" autocomplete="off" placeholder="ex : michelbirmugish22@gmail.com">
+          </div>
+          <label for="adresse_rdc" class="col-sm-2 col-form-label">Adresse en RDC</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="adresse_rdc" autocomplete="off" placeholder="ex : Kinshasa/Gombé">
+          </div>
+        </div>
+        <div class="form-group row">
+          
+          <label for="sexe" class="col-sm-2 col-form-label">Sexe</label>
+          <div class="form-check col-sm-10">
+            <input class="form-check-input" value="Homme" type="radio" id="sexe1" name="sexe">
+            <label for="sexe1" class="form-check-label">Homme</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <input class="form-check-input" value="Femme" type="radio" id="sexe2" name="sexe">
+            <label for="sexe2" class="form-check-label">Femme</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input class="form-check-input"  value="Autre" type="radio" id="sexe3" name="sexe" checked>
+            <label for="sexe3" class="form-check-label">Ne pas préciser</label>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="lieu_nais" class="col-sm-2 col-form-label">Lieu de naissance</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="lieu_nais" autocomplete="off" placeholder="ex : Homme Politique">
+          </div>
+          <label for="date_nais" class="col-sm-2 col-form-label">Date de naissance</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="date_nais" autocomplete="off" placeholder="ex : michelbirmugish22@gmail.com">
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="form-check col-sm-6">
+            <button class="btn btn-primary btn-lg ml-auto mt-3" type="submit">Enregistrer</button>
+          </div>
+        </div>
+
+      {% comment %} </div> {% endcomment %}
+      
+    </div>
+    <!-- /.card-body -->
+  </div>

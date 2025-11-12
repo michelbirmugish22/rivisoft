@@ -1,0 +1,260 @@
+<script>
+  $("#form-1").submit((e) => {
+    e.preventDefault();
+    if ($("#designation_s").val() !== null) {
+        var formData = new FormData();
+        formData.append('designation', $("#designation_s").val());
+        formData.append('departement', $("#departement").val());
+        formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'save_service' %}",
+            data: formData,
+            processData:false,
+            contentType:false,        
+            success: function (data) {
+                toastr.success(data.msg);
+                $(".form-control").val("");
+                var tab = `<option value="" selected disabled>sélectionnez un département</option>`;
+                $.each(data.services.obj, function (key, value) {
+                    tab += `<option value="${value.id}">${value.designation}</option>`;
+                });
+                $("#select-form1").html(tab);
+            },
+            error: function (err) {
+                console.log(err);
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("Quelques champs obligatoires sont vides");
+    }
+  });
+  
+  
+    //Selection catégorie
+    $("#select-form1").change(function(){
+      $.ajax({
+        method:'get',
+        url:"{% url 'edit_service' %}",
+        data:{
+          'id':$("#select-form1").val(),
+        },
+        success:(function(data){
+          $("#designation_s").val(data.service.designation);
+          $("#departement").val(data.service.departement);
+        })
+      })
+    })
+  
+    //Modifier 
+    $("#btn-modifier1").click((e)=>{   
+      if ($("#designation_s").val() != null || $("#select-form1").val() != null) {
+        var formData = new FormData();
+        formData.append('id', $("#select-form1").val());
+        formData.append('designation', $("#designation_s").val());
+        formData.append('departement', $("#departement").val());
+        formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+  
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'edit_service' %}",
+            data: formData,
+            processData:false,
+            contentType:false,        
+            success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              var tab = `<option value="" selected disabled>sélectionnez un service</option>`;
+              $.each(data.services.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form1").html(tab);
+            },
+            error: function (err) {
+                console.log(err);
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("Quelques champs obligatoires sont vides");
+    }
+    })
+  
+    //Supprimer catégorie
+  $("#btn-supprimer1").click(function(){
+      if($("#select-form1").val()=== null){
+        toastr.error("Vous devez d'abord sélectionner un service.")
+      }else{
+        $("#modal-default").modal('show')
+        $(".modal-title").html("Suppression Service")
+        $(".modal-body").html("Vous êtes sur le point de supprimer le service "+$("#designation_s").val()+" ? Tous les empoyés affectés à ce département disparaîtrons du logiciel. Pensez tout d'abord à faire une sauvegarde enfin d'éviter tout sinistre. <br><br>Voulez-vous continuer avec cette suppression ?")
+      }
+  
+      $("#modal-continuer").click(function(){
+        $.ajax({
+          type: 'POST',
+          url: "{% url 'delete_service' %}",
+          data: {
+            id: $("#select-form1").val(),
+            csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+          },
+          success:function(data){
+            $("#modal-default").modal('hide');
+                  toastr.success(data.msg);
+                  $(".form-control").val("");
+                  var tab = `<option value="" selected disabled>sélectionnez un service</option>`;
+                  $.each(data.services.obj, function (key, value) {
+                      tab += `<option value="${value.id}">${value.designation}</option>`;
+                  });
+                  $("#select-form1").html(tab);
+          },
+          error:function(err){
+            alert("Erreur survenu :"+ err.statusText)
+            console.log(err.statusText)
+          }
+        })
+      })
+    });
+    
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Enregistrer catégorie
+$("#form-2").submit((e) => {
+  e.preventDefault();
+  if ($("#designation_d").val() !== null) {
+      var formData = new FormData();
+      formData.append('designation', $("#designation_d").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'save_departement' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              var tab = `<option value="" selected disabled>sélectionnez un département</option>`;
+              $.each(data.departements.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form2").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+});
+
+
+  //Selection catégorie
+  $("#select-form2").change(function(){
+    $.ajax({
+      method:'get',
+      url:"{% url 'edit_departement' %}",
+      data:{
+        'id':$("#select-form2").val(),
+      },
+      success:(function(data){
+        $("#designation_d").val(data.departement.designation);
+      })
+    })
+  })
+
+  //Modifier pdv
+  $("#btn-stock-modifier2").click((e)=>{   
+    if ($("#designation").val() !== null) {
+      var formData = new FormData();
+      formData.append('id', $("#select-form2").val());
+      formData.append('designation', $("#designation_d").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'edit_departement' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+            toastr.success(data.msg);
+            $(".form-control").val("");
+            var tab = `<option value="" selected disabled>sélectionnez un département</option>`;
+            $.each(data.departements.obj, function (key, value) {
+                tab += `<option value="${value.id}">${value.designation}</option>`;
+            });
+            $("#select-form2").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+  })
+
+  //Supprimer catégorie
+$("#btn-stock-supprimer2").click(function(){
+    if($("#select-form2").val()=== null){
+      toastr.error("Vous devez d'abord sélectionner un département.")
+    }else{
+      $("#modal-default").modal('show')
+      $(".modal-title").html("Suppression Point de vente")
+      $(".modal-body").html("Vous êtes sur le point de supprimer le departement "+$("#designation_d").val()+" ? Tous les empoyés affectés à ce département disparaîtrons du logiciel. Pensez tout d'abord à faire une sauvegarde enfin d'éviter tout sinistre. <br><br>Voulez-vous continuer avec cette suppression ?")
+    }
+
+    $("#modal-continuer").click(function(){
+      $.ajax({
+        type: 'POST',
+        url: "{% url 'delete_departement' %}",
+        data: {
+          id: $("#select-form2").val(),
+          csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+        },
+        success:function(data){
+          $("#modal-default").modal('hide');
+                toastr.success(data.msg);
+                $(".form-control").val("");
+                var tab = `<option value="" selected disabled>sélectionnez un département</option>`;
+                $.each(data.departements.obj, function (key, value) {
+                    tab += `<option value="${value.id}">${value.designation}</option>`;
+                });
+                $("#select-form2").html(tab);
+        },
+        error:function(err){
+          alert("Erreur survenu :"+ err.statusText)
+          console.log(err.statusText)
+        }
+      })
+    })
+  });
+  
+//DETECT DEVICE
+  function detectDeviceType() {
+    const userAgent = navigator.userAgent;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+  }
+  if(detectDeviceType()==="Mobile"){
+    $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+  }
+</script>

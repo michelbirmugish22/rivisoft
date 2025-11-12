@@ -1,0 +1,316 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-9">
+            <form action="{% url 'checkin_pdf' %}" method="post" id="form-1" enctype="multipart/form-datta">
+              {% csrf_token %}
+                    <div class="card card-secondary">
+                      <!-- /.card-header -->
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="form-group col-md-4">
+                            <label for="etage">Client</label>
+                            <select name="id_cli" id="id_cli" class="form-control" required>
+                              <option value="">...</option>
+                              {% for cli in clients %}
+                                <option value="{{ cli.id }}">{{ cli.nom }} {{ cli.postnom }}</option>
+                              {% endfor %}                
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="etage">Organisation</label>
+                            <select name="id_ese" id="id_ese" class="form-control" required>
+                              {% for ese in entreprises %}
+                                <option value="{{ ese.id }}" {% if ese.nom == 'PRIVEE' %} selected {% endif %}>{{ ese.nom }} ({{ ese.notre_relation }})</option>
+                              {% endfor %}                
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-4">
+                            <label for="etage">Chambre</label>
+                            <select name="id_chambre" id="id_chambre" class="form-control" required>
+                              <option value="">...</option>
+                              {% for cha in chambres %}
+                                <option value="{{ cha.id }}">{{ cha.numero }} ({{ cha.categorie.designation }})</option>
+                              {% endfor %}                
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Provenance</label>
+                            <input type="text" class="form-control" name="provenance" id="provenance" autocomplete="off" placeholder=".ex : Rome (Italie)" required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Déstination</label>
+                            <input type="text" class="form-control" name="destination" id="destination" autocomplete="off" placeholder=".ex : Uvira, Sud-Kivu" required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Date d'entrée</label>
+                            <input type="date" class="form-control" name="date1" id="date1" disabled autocomplete="off" placeholder=".ex : date..." required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Date de sortie</label>
+                            <input type="date" class="form-control" name="date2" id="date2" autocomplete="off" placeholder=".ex : date..." required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Prix 1 nuitée</label>
+                            <input type="number" step="any" class="form-control" name="prixnuitee" id="prixnuitee"  max="99999.99" min="0.0" autocomplete="off" placeholder=".ex: 20.5" required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Avance</label>
+                            <input type="number" step="any" class="form-control" name="avance" id="avance"  max="99999.99" min="0.0" autocomplete="off" placeholder=".ex: 20.5" required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Nombre personnes</label>
+                            <input type="number" class="form-control" value="1" name="nbpax" id="nbpax" max="10" min="1" autocomplete="off" placeholder=".ex: 2" required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Pièce d'identité</label>
+                            <select  class="form-control" name="designation_piece" id="designation_piece" autocomplete="off">
+                              <option value="PASSEPORT">Passeport</option>
+                              <option value="Visa">Visa</option>
+                              <option value="CPGL">CPGL</option>
+                              <option value="Carte">Carte d'électeur</option>
+                              <option value="Autre">Autre</option>
+                            </select>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Numéro de la pièce</label>
+                            <input type="text" class="form-control" name="numero_piece" id="numero_piece" max="10" min="1" autocomplete="off" placeholder=".ex: 2" required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Date de livraison</label>
+                            <input type="date" class="form-control" name="date_livre_piece" id="date_livre_piece" autocomplete="off" placeholder=".ex:" required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Date d'expiration</label>
+                            <input type="date" class="form-control" name="date_expire_piece" id="date_expire_piece" autocomplete="off" placeholder=".ex:" required>
+                          </div>
+                          <div class="form-group col-md-3">
+                            <label for="exampleInputBorder">Lieu de livraison</label>
+                            <input type="text" class="form-control" name="lieu_livre_piece" id="lieu_livre_piece" autocomplete="off" placeholder=".ex: Paris (France)" required>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-7"></div>
+                          <button type="reset" class="btn btn-danger col-md-2 mr-2" id="btn-reset">Reset form</button>                          
+                          <button type="submit" class="btn btn-primary col-md-2" id="btn-send">Enregistrer</button>                          
+                        </div>
+
+                      </div>
+                      <!-- /.card-body -->
+                    </div>
+             </form>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+          <div class="card col-md-3">
+            <div class="card-header"><h5>MISES A JOURS</h5></div>
+            <div class="card-body">
+              <div class=" row">
+                <select name="" id="select-form1" class="form-control form-control-border mb-2">
+                    <option selected disabled>sélectionnez une résevation</option>
+                    {% for reservation in reservations %}
+                      <option value="{{reservation.id}}">{{reservation.client.nom}} ({{reservation.categorie.designation}} - {{reservation.datearrivee}})</option>
+                    {% endfor %}                                  
+                </select> 
+                <button type="button" class="btn btn-outline-danger mr-2" id="btn-form1-supprimer">Annuler RSV</button>
+                <button type="button" class="btn btn-outline-primary" id="btn-form1-modifier">Modifier RSV</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  
+{% include 'riviera/formulaires/modal.html' %}
+<script>
+    var today = new Date();
+    var tomorrow = new Date();
+    today.setDate(today.getDate() + 0); // Ajoute 0 jours à la date actuelle
+    tomorrow.setDate(today.getDate() + 1); // Ajoute 1 jours à la date actuelle
+    var aujourd = today.toISOString().split('T')[0];
+    var demain = tomorrow.toISOString().split('T')[0];
+    $('#date1').val(aujourd);
+    $('#date2').val(demain);
+</script>
+<script>
+  $("#form-1XXX").submit((e)=>{
+    e.preventDefault();
+    var form = new FormData()
+    form.append('id_cli',$("#id_cli").val());
+    form.append('id_chambre',$("#id_chambre").val());
+    form.append('id_ese',$("#id_ese").val());
+    form.append('date1',$("#date1").val());
+    form.append('date2',$("#date2").val());
+    form.append('prixnuitee',$("#prixnuitee").val());
+    form.append('avance',$("#avance").val());
+    form.append('provenance',$("#provenance").val());
+    form.append('destination',$("#destination").val());
+    form.append('nbpax',$("#nbpax").val());
+
+    form.append('designation_piece',$("#designation_piece").val());
+    form.append('numero_piece',$("#numero_piece").val());
+    form.append('date_livre_piece',$("#date_livre_piece").val());
+    form.append('date_expire_piece',$("#date_expire_piece").val());
+    form.append('lieu_livre_piece',$("#lieu_livre_piece").val());
+    form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+   
+    $.ajax({
+      type:'POST',
+      url:"{% url 'checkin_pdf' %}",
+      data:form,
+      processData:false,
+      contentType:false,
+      success:((result)=>{
+        $("#form-1").val("")
+        toastr.info(result.msg);
+        reset_form()
+        var tab = `<option value="" selected disabled>sélectionnez un enregistrement</option>`;
+        $.each(result.enregistrements.obj, function(key, value){
+          tab += `<option value="`+value.id+`">`+value.chambre+` (`+value.client+` - `+value.datearr+ `)</option>`;
+        });
+        $("#select-form1").html(tab);
+      }),
+      error:((err)=>{
+        toastr.error("Echec d'enregistrement")
+      })
+    })
+  })
+//Selection réservation
+$("#select-form1").change(function(){
+  $.ajax({
+    method:'get',
+    url:"{% url 'get_one_reservations' %}",
+    data:{
+      'id':$("#select-form1").val(),
+    },
+    success:(function(data){
+      $("#prix").val(data.reservations.prixvalide);
+      $("#id_cli").val(data.reservations.client);
+      $("#id_cat").val(data.reservations.categorie);
+      $("#date1").val(data.reservations.datearrivee);
+      $("#date2").val(data.reservations.datesortie);
+      $("#mode").val(data.reservations.mode);
+      $("#nbadulte").val(data.reservations.nbadultes);
+      $("#nbenfant").val(data.reservations.nbenfants);
+      $("#nbcham").val(data.reservations.nbchambre);
+      $("#autre_info").val(data.reservations.autresinfos);
+    })
+  })
+})
+
+//Modifier une réservation 
+$("#btn-form1-modifier").click((e)=>{
+  var form_rsv = new FormData()
+  form_rsv.append('id_rsv',$("#select-form1").val());
+  form_rsv.append('id_cli',$("#id_cli").val());
+  form_rsv.append('id_cat',$("#id_cat").val());
+  form_rsv.append('date1',$("#date1").val());
+  form_rsv.append('date2',$("#date2").val());
+  form_rsv.append('prix',$("#prix").val());
+  form_rsv.append('mode',$("#mode").val());
+  form_rsv.append('autre_info',$("#autre_info").val());
+  form_rsv.append('nbadulte',$("#nbadulte").val());form_rsv.append('nbenfant',$("#nbenfant").val());form_rsv.append('nbchamb',$("#nbchamb").val());
+  form_rsv.append("csrfmiddlewaretoken",$("[name=csrfmiddlewaretoken]").val());
+  $.ajax({
+    type:'POST',
+    url:"{% url 'edit_reservation' %}",
+    data:form_rsv,
+    processData:false,
+    contentType:false,
+    success:((result)=>{
+      $("#form-1").val("")
+      toastr.info(result.msg);
+      reset_form()
+      var tab = `<option value="" selected disabled>sélectionnez une réservation</option>`;
+      $.each(result.reservations.obj, function(key, value){
+        tab += `<option value="`+value.id+`">`+value.client+` (`+value.categorie+` - `+value.datearrivee+ `)</option>`;
+      });
+      $("#select-form1").html(tab);
+    }),
+    error:((err)=>{
+      toastr.error("Echec d'enregistrement")
+    })
+  })
+})
+//Supprimer une réservation 
+$("#btn-form1-supprimer").click((e)=>{ 
+  var form_rsv = new FormData()
+  $("#modal-default").modal('show')
+  $(".modal-title").html("Annulation réservation")
+  $(".modal-body").html("Êtes-vous sûr de vouloir annuler cette réservation ? <br>Voulez-vous continuer ?")
+  $(".modal-body").append(`
+  <form action="" method="post">
+    <div class="form-group col-md-12">
+      <label>Donnez la raison pour laquelle vous-voulez annuler</label>
+      <input type="text" class="form-control" id="raison_annul"  autocomplete="off"  required>
+    </div>
+  </form>
+  `)
+  $("#modal-continuer").click(function(){
+    if($("#raison_annul").val()!==null){
+      form_rsv.append('id_rsv',$("#select-form1").val());
+      form_rsv.append('raison_annul',$("#raison_annul").val());
+      form_rsv.append("csrfmiddlewaretoken",$("[name=csrfmiddlewaretoken]").val());
+      $.ajax({
+        type:'POST',
+        url:"{% url 'delete_reservation' %}",
+        data:form_rsv,
+        processData:false,
+        contentType:false,
+        success:((result)=>{
+          toastr.info(result.msg);
+          reset_form()
+          var tab = `<option value="" selected disabled>sélectionnez une réservation</option>`;
+          $.each(result.reservations.obj, function(key, value){
+            tab += `<option value="`+value.id+`">`+value.client+` (`+value.categorie+` - `+value.datearrivee+ `)</option>`;
+          });
+          $("#select-form1").html(tab);
+        }),
+        error:((err)=>{
+          toastr.error("Echec d'annulation")
+        })
+      })
+    }
+    else{
+        toastr.error("Vous devez mentionner la raison pour laquelle vous annulez cette réservation.")
+    }
+  })
+})
+function reset_form(){
+  $("#id_cli").val("");$("#id_chambre").val("");$("#date1").val("");$("#date2").val("");$("#id_ese").val("");
+  $("#prixnuitee").val("");$("#provenance").val("");$("#destination").val("");
+  $("#designation_piece").val("");$("#numero_piece").val("");$("#nbpax").val("");
+  $("#avance").val("");$("#date_livre_piece").val("");$("#date_expire_piece").val("");
+}
+
+</script>

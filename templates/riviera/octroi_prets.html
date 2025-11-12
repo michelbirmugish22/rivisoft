@@ -1,0 +1,137 @@
+
+{% load static %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-9">
+            <form method="post" id="form-1">
+              {% csrf_token %}
+                    <div class="card card-secondary">
+                      <!-- /.card-header -->
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="form-group col-md-6">
+                            <label for="agent">Agent</label>
+                            <select name="agent" id="agent" class="form-control">
+                                
+                                {% for emp in employes %}
+                                  <option value="{{ emp.id }}">{{ emp.nom }} {{ emp.postnom }}</option>
+                                {% endfor %}
+                                                                  
+                            </select> 
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="montant">Montant</label>
+                            <input type="number" step="0.01" class="form-control" id="montant" autocomplete="off">
+                          </div>
+                          <div class="icheck-primary d-inline pr-0">
+                            <input type="radio" id="avance" value="1" checked name="mode">
+                            <label for="avance"> Avance sur salaire
+                            </label>
+                          </div>
+                          <div class="icheck-primary d-inline pl-3">
+                            <input type="radio" id="pret" value="2" name="mode">
+                            <label for="pret"> Prêt à rembourser mensuellements
+                            </label>
+                          </div>
+                         
+                          <div class="form-group col-md-6">
+                            <label for="motif">Motif</label>
+                            <input type="text" class="form-control" id="motif" autocomplete="off">
+                          </div>
+                          <div class="form-group col-md-6">
+                            <label for="periode">Mois de couverture </label>
+                            <input type="text" class="form-control" id="periode" autocomplete="off" placeholder="ex: 9,2024;3,2025  &RightArrow; ça signifie Septembre 2024 et Mars 2025">
+                          </div>
+                        </div>
+                        <div class="row">
+                          <button type="submit" class="btn btn-primary col-md-2" id="btn-send">Créer un menu</button>
+                          <div class="col-md-3"></div>
+                          <div class=" row col-md-7">
+                            <select name="" id="select-form1" class="form-control form-control-border col-md-5">
+                                <option selected disabled>sélectionnez un prêt</option>
+                                {% for emp in employers %}
+                                  <option value="{{emp.id}}">{{emp.nom}}</option>
+                                {% endfor %}                                  
+                            </select> 
+                            <button type="button" class="btn btn-outline-danger col-md-3 m-1" id="btn-form1-supprimer">Supprimerd</button>
+                            <button type="button" class="btn btn-outline-primary col-md-3 m-1" id="btn-form1-modifier">Modifier</button>
+                          </div>
+                        </div>
+
+                      </div>
+                      <!-- /.card-body -->
+                    </div>
+              </form>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <script>
+    $("#form-1").submit(function(e){
+      e.preventDefault();
+      if($("#agent").val() !== "" && $("#montant").val() !== "" && $("#motif").val() !== "" && $("#periode").val() != ""){
+        let error = false 
+        let msg_error = "" 
+        $.ajax({
+          type:'get',
+          url:"{% url 'octroyer_pret' %}",
+          data:{id : parseInt($("#agent").val())},
+          success:function(res){
+            error = res.error
+            msg_error = res.msg
+          }
+        })
+        if (error==true){
+          toastr.error(msg_error)
+        }else{
+          var form = new FormData();
+          form.append('employe',$("#agent").val());
+          form.append('mode',$("[name=mode]:checked").val());
+          form.append('montant',$("#montant").val());
+          form.append('motif',$("#motif").val());
+          form.append('periode',$("#periode").val());
+          form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+          $.ajax({
+            type:'post',
+            url:"{% url 'octroyer_pret' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(res){
+              toastr.info(res.msg)
+            }
+          })
+        }
+      }else{
+        toastr.error("Veuillez completer tous les champs !")
+      }
+    });
+
+
+
+  </script>

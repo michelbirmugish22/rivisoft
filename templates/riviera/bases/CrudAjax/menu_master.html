@@ -1,0 +1,307 @@
+<script>
+  function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $('#image_preview').attr('src', e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+$("#urlimage").change(function () {
+    readURL(this);
+    $('#image_preview').css('display','block')
+});
+</script>
+
+<script>
+// Enregistrer catégorie
+$("#form-1").submit((e) => {
+  e.preventDefault();
+  if ($("#designation").val() !== null && $("#prix").val() !== null && $("#typem").val() !== null && $("#datefin").val() !== null && $("#groupe").val() !== null) {
+      var formData = new FormData();
+      formData.append('urlimage', $("#urlimage")[0].files[0]);
+      formData.append('designation', $("#designation").val());
+      formData.append('prix', $("#prix").val());
+      formData.append('typem', $("#typem").val());
+      formData.append('datefin', $("#datefin").val());
+      formData.append('groupe', $("#groupe").val());
+      formData.append('commentaire', $("#commentaire").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'save_menu' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              $("#typem").val("Nourriture")
+              var tab = `<option value="" selected disabled>sélectionnez un Menu</option>`;
+              $.each(data.menus.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form1").html(tab);
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+});
+
+
+  //Selection catégorie
+  $("#select-form1").change(function(){
+    $.ajax({
+      method:'get',
+      url:"{% url 'edit_menu' %}",
+      data:{
+        'id':$("#select-form1").val(),
+      },
+      success:(function(data){
+        $("#designation").val(data.menu.designation);
+        $("#prix").val(data.menu.prix);
+        $("#typem").val(data.menu.typem);
+        $("#groupe").val(data.menu.groupe);
+        $("#image_preview").css('display','block');
+        $("#image_preview").attr('src',"media/"+data.menu.urlimage);
+        $("#datefin").val(data.menu.datefin);
+        $("#commentaire").val(data.menu.commentaire);
+      })
+    })
+  })
+
+  //Modifier Catégorie
+  $("#btn-form1-modifier").click((e)=>{   
+    if ($("#designation").val() !== null && $("#prix").val() !== null && $("#typem").val() !== null && $("#datefin").val() !== null && $("#groupe").val() !== null) {
+      var formData = new FormData();
+      formData.append('urlimage', $("#urlimage")[0].files[0]);
+      formData.append('id', $("#select-form1").val());
+      formData.append('designation', $("#designation").val());
+      formData.append('prix', $("#prix").val());
+      formData.append('typem', $("#typem").val());
+      formData.append('datefin', $("#datefin").val());
+      formData.append('groupe', $("#groupe").val());
+      formData.append('commentaire', $("#commentaire").val());
+      formData.append('csrfmiddlewaretoken', $("[name=csrfmiddlewaretoken]").val());
+
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'edit_menu' %}",
+          data: formData,
+          processData:false,
+          contentType:false,        
+          success: function (data) {
+              toastr.success(data.msg);
+              $(".form-control").val("");
+              $("#typem").val("Nourriture")
+              var tab = `<option value="" selected disabled>sélectionnez un Menu</option>`;
+              $.each(data.menus.obj, function (key, value) {
+                  tab += `<option value="${value.id}">${value.designation}</option>`;
+              });
+              $("#select-form1").html(tab);
+              $("#image_preview").css('display','none');
+          },
+          error: function (err) {
+              console.log(err);
+              toastr.error(err.statusText);
+          }
+      });
+  } else {
+      toastr.error("Quelques champs obligatoires sont vides");
+  }
+  })
+
+  //Supprimer catégorie
+$("#btn-form1-supprimer").click(function(){
+    if($("#select-form1").val()=== null){
+      toastr.error("Vous devez d'abord sélectionner un menu.")
+    }else{
+      $("#modal-default").modal('show')
+      $(".modal-title").html("Suppression Menu")
+      $(".modal-body").html("Vous êtes sur le point de supprimer le menu "+$("#designation").val()+" ? Toutes les opérations effectuées sur ce Menu disparaîtrons du logiciel. Pensez tout d'abord à imprimer les rapports enfin de les concerver en dur. <br><br>Voulez-vous continuer avec cette suppression ?")
+    }
+  });
+  $("#modal-continuer").click(function(){
+    $.ajax({
+      type: 'POST',
+      url: "{% url 'delete_menu' %}",
+      data: {
+        id: $("#select-form1").val(),
+        csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+      },
+      success:function(data){
+        $("#modal-default").modal('hide');
+        toastr.error(data.msg)
+        $("#typem").val("Nourriture")
+        var tab = `<option value="" selected disabled>sélectionnez un Menu</option>`;
+        $.each(data.menus.obj, function (key, value) {
+            tab += `<option value="${value.id}">${value.designation}</option>`;
+        });
+        $("#select-form1").html(tab);
+        $("#image_preview").css('display','none');
+      },
+      error:function(err){
+        alert("Erreur survenu :"+ err.statusText)
+        console.log(err.statusText)
+      }
+    })
+  })
+
+
+
+
+
+
+
+//================================================== CHAMBRES =================================
+// Enregistrer catégorie
+$("#form-2").submit((e)=>{
+  e.preventDefault();    
+  if($("#des_groupe").val() !==null){
+  $.ajax({
+    type: 'post',
+    url: "{% url 'save_groupemenu' %}",
+    data: {
+      designation: $("#des_groupe").val(),
+      csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+    },
+    success: function(data){
+      parametre_suc('un groupe', 'form2', data.msg, data.groupes.obj);
+    },
+    error: function(err) {
+      console.log(err);
+      toastr.error(err.statusText)
+    }
+  });
+  }else{
+      toastr.error("Quelques champs obligatoires sont vides")
+  }
+})
+
+//Selection catégorie
+$("#select-form2").change(function(){
+  $.ajax({
+    method:'get',
+    url:"{% url 'edit_groupemenu' %}",
+    data:{
+      'id':$("#select-form2").val(),
+    },
+    success:(function(data){
+      $("#des_groupe").val(data.groupe.designation);
+    })
+  })
+})
+
+//Modifier Catégorie
+$("#btn-form2-modifier").click((e)=>{   
+  e.preventDefault();    
+  if($("#des_groupe").val() !==null){
+  $.ajax({
+    type: 'post',
+    url: "{% url 'edit_groupemenu' %}",
+    data: {
+      id: $("#select-form2").val(),
+      designation: $("#des_groupe").val(),
+      csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+    },
+    success: function(data){
+      parametre_suc('un groupe', 'form2',data.msg, data.groupes.obj)
+    },
+    error: function(err) {
+      console.log(err);
+    }
+  });
+  }else{
+    toastr.error('Quelques champs obligatoires sont vides')
+  }
+})
+
+
+//Suppression form2
+$("#btn-form2-supprimer").click(function(){
+  if($("#select-form2").val()=== null){
+    toastr.error("Vous devez d'abord sélectionner un groupe de menu.")
+  }else{
+    $("#modal-default").modal('show')
+    $(".modal-title").html("Suppression un Groupe de Menu")
+    $(".modal-body").html("Vous êtes sur le point de supprimer le groupe de menu "+$("#des_groupe").val()+" ?  Tous les menus liés par celui-ci seront également supprimé. Pensez tout d'abord à imprimer les rapports enfin de les concerver en dur. <br><br>Voulez-vous continuer avec cette suppression ?")
+  }
+});
+
+$("#modal-continuer").click(function(){
+  $.ajax({
+    type: 'POST',
+    url: "{% url 'delete_groupemenu' %}",
+    data: {
+      id: $("#select-form2").val(),
+      csrfmiddlewaretoken : $('[name=csrfmiddlewaretoken]').val(),
+    },
+    success:function(data){
+      $("#modal-default").modal('hide');
+      parametre_suc('un groupe', 'form2',data.msg, data.groupes.obj)
+    },
+    error: function(err) {
+      console.log(err);
+    }
+  });
+  });
+
+
+
+
+function parametre_suc(nom_model='',nom_select='', obj_msg, obj_model){
+    $(".form-control").val("");
+    toastr.info(obj_msg);
+    var tab = `<option value="" selected disabled>sélectionnez `+nom_model+`</option>`;
+    $.each(obj_model, function(key, value){
+      tab += `<option value="`+value.id+`">`+value.designation+`</option>`;
+    });
+    $("#select-"+nom_select).html(tab);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//SELECT2 ET BOOTSTRAP SWITCH
+  $(document).ready(function() {
+    $('.form-select').select2();
+    $('#select-bloc').select2();
+  });
+
+  $("input[data-bootstrap-switch]").each(function(){
+    $(this).bootstrapSwitch('state', $(this).prop('checked'));
+  })
+
+
+//DETECT DEVICE
+
+  function detectDeviceType() {
+    const userAgent = navigator.userAgent;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ? 'Mobile' : 'Desktop';
+  }
+  if(detectDeviceType()==="Mobile"){
+    $(".input-group").removeClass("col-6"); $(".input-group").addClass("col-12");
+  }
+</script>

@@ -1,0 +1,194 @@
+
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">{{ titre }}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item active">{{user.get_affectation_display}}</li>
+              <li class="breadcrumb-item active">{{ titre|slice:':13' }}...</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="row g-2">
+          <div class="col-md-8">
+            <div class="card">
+              <!-- ./card-body -->
+              <div class="card-footer">
+                <form action="{% url 'rapports_du_stock' %}" method="post" id="form-4">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <label for="date1">Date debut</label>
+                            <input type="date" class="form-control" name="date1" id="date1" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="date2">Date du jour</label>
+                            <input type="date" class="form-control" name="date2" disabled id="date2" required>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label class="text-black-50"> ....... </label>
+                            <button type="submit" class="btn btn-outline-success">Chercher <i class="fa fa-eye"></i> </button>
+                        </div>
+                    </div>
+                </form>            
+              </div>
+              <!-- /.card-footer -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-4">
+            <div class="info-box mb-3">
+              <div class="info-box-content">
+                <form method="post" id="form-2">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="form-group col-12">
+                            <label for="designation">Désignation</label>
+                            <input type="text" class="form-control" id="designation" autocomplete="off" placeholder=".ex : Airtel Money">
+                        </div>
+                        <div class="form-group">
+                            <label for="p_caisse">Est-ce désigné comme petite caisse ?</label>
+                            <input type="radio" name="p_caisse" value="1" id="p_caisse1"> OUI
+                            <input type="radio" name="p_caisse" value="0" checked id="p_caisse2"> NON
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" class="btn btn-outline-success" value="Sauvegarder">
+                        </div>
+                    </div>
+                </form>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  {% include 'riviera/formulaires/modal.html' %}
+  <script>
+    var un_mois = new Date();
+    var aujourd = new Date();
+    un_mois.setDate(un_mois.getDate() - 31); //Un mois avant la date actuelle
+    aujourd.setDate(aujourd.getDate() + 0); //Un mois avant la date actuelle
+      var un_mois_avant = un_mois.toISOString().split('T')[0];
+      var aujourdhui = aujourd.toISOString().split('T')[0];
+      $('#date1').val(un_mois_avant);
+      $('#date2').val(aujourdhui);
+      $('#date2').click(function(e){
+        e.preventDefault();
+      })
+  </script>
+<script>
+    $("#form-1").submit((e)=>{
+        e.preventDefault()
+        form = new FormData();
+        form.append('libelle',$("#libelle").val());
+        form.append('operateur',$("#operateur").val());
+        form.append('montant',-parseFloat($("#montant").val()));
+        form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type:'POST',
+            url:"{% url 'caisse' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                toastr.info("Opération effectuée");
+            },
+            error:function(err){
+                toastr.error("Operation Echouée");
+            }
+        })
+
+    })
+  </script>
+  <script>
+    $("#form-3").submit((e)=>{
+        e.preventDefault()
+        form = new FormData();
+        form.append('libelle',$("#libelle2").val());
+        form.append('operateur',$("#operateur2").val());
+        form.append('montant',parseFloat($("#montant2").val()));
+        form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type:'POST',
+            url:"{% url 'caisse' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                toastr.info("Opération d'entrée effectuée");
+            },
+            error:function(err){
+                toastr.error("Operation d'entrée Echouée");
+            }
+        })
+
+    })
+  </script>
+  {% comment %} <script>
+    $("#form-4").submit((e)=>{
+        e.preventDefault()
+        form = new FormData();
+        form.append('date1',$("#date1").val());
+        form.append('date2',$("#date2").val());
+        form.append('operateur3',$("#operateur3").val());
+        form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type:'POST',
+            url:"{% url 'journal_caisse' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                toastr.info("Opération d'entrée effectuée");
+            },
+            error:function(err){
+                toastr.error("Operation d'entrée Echouée");
+            }
+        })
+
+    })
+  </script> {% endcomment %}
+  <script>
+    $("#form-2").submit((e)=>{
+        e.preventDefault()
+        form = new FormData();
+        form.append('designation',$("#designation").val());
+        form.append('p_caisse',$("#p_caisse").val());
+        form.append('csrfmiddlewaretoken',$("[name=csrfmiddlewaretoken]").val());
+        $.ajax({
+            type:'POST',
+            url:"{% url 'post_operation_caisse' %}",
+            data:form,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                toastr.info("Opération effectuée");
+            },
+            error:function(err){
+                toastr.error("Operation Echouée");
+            }
+        })
+
+    })
+  </script>
